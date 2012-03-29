@@ -15,6 +15,8 @@ from fabric.contrib.console import confirm
 
 # Setup the different environments for development, staging and live.
 
+env.use_ssh_config = True
+
 def _parse_ini(path, cls=ConfigParser):
     """Generate a ConfigObject instance for env.ini"""
     
@@ -83,10 +85,11 @@ def db_create():
     # Create the user.
     cmd = "CREATE ROLE {0} WITH CREATEDB LOGIN PASSWORD '{1}';"
     sql = cmd.format(db_user, db_password)
-    run('psql postgres -c "{}"'.format(sql))
+    sudo('psql postgres -c "{}"'.format(sql), user='postgres')
     
     # Create the db.
-    run('createdb -E UTF8 -O {0} {1}'.format(db_user, db_name))
+    sudo('createdb -E UTF8 -T template0 -O {0} {1}'.format(db_user, db_name),
+         user='postgres')
 
 def db_up(target='head'):
     """Upgrade the db version to ``target``."""
