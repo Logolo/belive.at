@@ -42,7 +42,6 @@ def development():
       
     """
     
-    #env.hosts = ['localhost']
     env.config_file = 'etc/development.ini'
     _shared()
 
@@ -84,10 +83,10 @@ def db_create():
     # Create the user.
     cmd = "CREATE ROLE {0} WITH CREATEDB LOGIN PASSWORD '{1}';"
     sql = cmd.format(db_user, db_password)
-    #run('psql postgres -c "{}"'.format(sql))
+    run('psql postgres -c "{}"'.format(sql))
     
     # Create the db.
-    sudo('createdb -E UTF8 -O {0} {1}'.format(db_user, db_name))
+    run('createdb -E UTF8 -O {0} {1}'.format(db_user, db_name))
 
 def db_up(target='head'):
     """Upgrade the db version to ``target``."""
@@ -129,6 +128,19 @@ def test_on_server(package='beliveat'):
     
     run('nosetests --with-doctest --with-id {0}'.format(package), capture=False)
 
+def install():
+    """Install instance on the server.
+      
+      # mkdir
+      # mkenv
+      # git clone
+      # source
+      # develop
+      
+    """
+    
+    raise NotImplementedError
+
 def deploy(branch='master'):
     """
       
@@ -151,7 +163,11 @@ def deploy(branch='master'):
       
     """
     
-    raise NotImplementedError
+    with cd('beliveat/instances/{0}'.format(env.instance)):
+        
+        run('git pull origin {0}'.format(branch))
+        
+        raise NotImplementedError
 
 
 # Admin helpers.
