@@ -1,0 +1,6 @@
+.noseids
+bin/
+include/
+lib/
+src/beliveat.egg-info/
+*.pyc

@@ -1,0 +1,21 @@
+upstream beliveat_live_server {
+    server unix:/tmp/beliveat.sock fail_timeout=0;
+}
+server {
+    listen 80 belive.at;
+    server_name belive.actual.is;
+    client_max_body_size 4G;
+    keepalive_timeout 5;
+    # checks for static file, if not found proxy to app
+    root /Users/thruflo/beliveat/instances/live/src/assets;
+    location / {
+        try_files $uri @proxy_to_app;
+    }
+    location @proxy_to_app {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_buffering off;
+        proxy_pass http://beliveat_live_server;
+    }
+}
