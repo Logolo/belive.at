@@ -18,6 +18,12 @@ def index_view(request):
     return {}
 
 
+@view_config(route_name='foo', renderer='beliveat:templates/foo.mako')
+def foo_view(request):
+    return {}
+
+
+
 @view_config(context=User, renderer='beliveat:templates/user.mako')
 def user_view(request):
     return {}

@@ -36,6 +36,7 @@ def main(global_config, **settings):
     
     # Expose routes.
     config.add_route('index', '')
+    config.add_route('foo', 'foo')
     config.add_route('users', 'users/*traverse', factory=UserRoot,
                      use_global_views=True)
     
