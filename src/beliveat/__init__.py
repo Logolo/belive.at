@@ -18,7 +18,7 @@ from pyramid_beaker import session_factory_from_settings
 from pyramid_simpleauth.hooks import get_roles
 from pyramid_simpleauth.tree import UserRoot
 
-from .model import Root
+from .tree import Root
 from .view import not_found_view
 
 def main(global_config, **settings):
