@@ -1,20 +1,60 @@
-upstream beliveat_live_server {
+upstream beliveat_server {
     server unix:/tmp/beliveat.sock fail_timeout=0;
+}
+upstream beliveat_staging_server {
+    server unix:/tmp/staging.beliveat.sock fail_timeout=0;
 }
 server {
     listen 80 belive.at;
     server_name belive.actual.is;
-    client_max_body_size 4G;
-    keepalive_timeout 5;
-    # checks for static file, if not found proxy to app
-    root /Users/thruflo/beliveat/instances/live/src/assets;
-    location / {
-        try_files $uri @proxy_to_app;
+    client_max_body_size 4M;
+    keepalive_timeout 55;
+    location ^~ /static {
+        root /home/thruflo/beliveat/instances/live/src/beliveat/assets;
+        expires max;
     }
-    location @proxy_to_app {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    location = /favicon.ico {
+        rewrite (.*) /static/favicon.ico;
+    }
+    location = /robots.txt {
+        rewrite (.*) /static/robots.txt;
+    }
+    location / {
+        proxy_connect_timeout 5;
+        proxy_read_timeout 25;
+        proxy_pass_header Server;
         proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Scheme $scheme;
         proxy_redirect off;
-        proxy_pass http://beliveat_live_server;
+        proxy_pass http://beliveat_server;
+    }
+}
+server {
+    listen 80 staging.belive.at;
+    server_name staging.belive.actual.is;
+    client_max_body_size 4M;
+    keepalive_timeout 55;
+    location ^~ /static {
+        root /home/thruflo/beliveat/instances/staging/src/beliveat/assets;
+        expires max;
+    }
+    location = /favicon.ico {
+        rewrite (.*) /static/favicon.ico;
+    }
+    location = /robots.txt {
+        rewrite (.*) /static/robots.txt;
+    }
+    location / {
+        proxy_connect_timeout 5;
+        proxy_read_timeout 25;
+        proxy_pass_header Server;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Scheme $scheme;
+        proxy_redirect off;
+        proxy_pass http://beliveat_staging_server;
     }
 }
