@@ -9,7 +9,7 @@ import time
 from ConfigParser import ConfigParser
 from datetime import datetime
 
-from fabric.api import run, sudo, hosts, local, cd, env, require, prompt
+from fabric.api import run, sudo, hosts, local, cd, env, require, prompt, settings
 from fabric.contrib.project import rsync_project
 from fabric.contrib.console import confirm
 
@@ -144,7 +144,7 @@ def install():
     
     raise NotImplementedError
 
-def deploy(branch='master'):
+def deploy(branch='master', force_upgrade=False):
     """
       
       #* get the latest source code
@@ -166,11 +166,26 @@ def deploy(branch='master'):
       
     """
     
+    # Overwrite the private config.
+    local('scp etc/{0}.ini beliveat:beliveat/instances/{0}/etc/{0}.ini'.format(env.instance))
+    
     with cd('beliveat/instances/{0}'.format(env.instance)):
         
+        # Forcefully terminate the pserve process.  XXX this should be graceful.
+        with settings(warn_only=True):
+            run('kill -TERM `cat pyramid.pid`')
+        
+        # Get the new source code.
         run('git pull origin {0}'.format(branch))
         
-        raise NotImplementedError
+        # Re-develop the egg.
+        run('../../env/bin/python2.6 setup.py develop -u')
+        upgrade_flag = '-U' if force_upgrade else ''
+        run('../../env/bin/python2.6 setup.py develop {0}'.format(upgrade_flag))
+        
+        # Restart the pserve process.
+        run('../../env/bin/pserve etc/{}.ini --daemon'.format(env.instance))
+    
 
 
 # Admin helpers.
