@@ -28,11 +28,13 @@ def main(global_config, **settings):
     config = Configurator(settings=settings, root_factory=Root)
     
     # Include packages.
-    config.include('pyramid_basemodel')
     config.include('pyramid_beaker')
-    config.include('pyramid_simpleauth')
     config.include('pyramid_tm')
     config.include('pyramid_weblayer')
+    config.include('pyramid_simpleauth')
+    config.commit()
+    config.include('pyramid_twitterauth')
+    config.include('pyramid_basemodel')
     
     # Expose routes.
     config.add_route('index', '')

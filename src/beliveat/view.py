@@ -23,7 +23,6 @@ def foo_view(request):
     return {}
 
 
-
 @view_config(context=User, renderer='beliveat:templates/user.mako')
 def user_view(request):
     return {}

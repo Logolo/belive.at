@@ -38,6 +38,7 @@ setup(
         'pyramid_debugtoolbar', 
         'pyramid_simpleauth', 
         'pyramid_simpleform', 
+        'pyramid_twitterauth',
         'pyramid_tm', 
         'pyramid_weblayer', 
         'python-dateutil', 
