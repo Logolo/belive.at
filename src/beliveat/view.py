@@ -15,7 +15,7 @@ def not_found_view(context, request):
 @view_config(route_name='index', permission=PUBLIC,
         renderer='beliveat:templates/index.mako')
 def index_view(request):
-    return {}
+    return {'world': 'world'}
 
 
 @view_config(route_name='foo', renderer='beliveat:templates/foo.mako')
