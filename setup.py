@@ -22,7 +22,9 @@ setup(
     zip_safe=False,
     install_requires = [
         'alembic',
-        'assetgen', 
+        'argparse',
+        'assetgen',
+        'beanstalkc',
         'coverage',
         'fabric',
         'formencode', 
@@ -45,6 +47,7 @@ setup(
         'python-postmark', 
         'setuptools-git', 
         'transaction', 
+        'tweepy',
         'waitress', 
         'zope.sqlalchemy',
         'SQLAlchemy',
@@ -56,5 +59,7 @@ setup(
         ls = setuptools_git:gitlsfiles
         [paste.app_factory]
         main = beliveat:main
+        [console_scripts]
+        beliveat_consumer = beliveat.consumer:main
     """
 )

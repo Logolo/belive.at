@@ -2,13 +2,13 @@
 
 """"""
 
-from sqlalchemy import Column, ForeignKey
-from sqlalchemy import DateTime, Integer, Unicode, UnicodeText
+from sqlalchemy import Column, ForeignKey, Table
+from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Unicode, UnicodeText
 from sqlalchemy.orm import backref, relationship
 
 from pyramid_basemodel import Base, BaseMixin, Session, save
 from pyramid_simpleauth import model as simpleauth_model
-#from pyramid_twitterauth import model as twitterauth_model
+from pyramid_twitterauth import model as twitterauth_model
 
 class Hashtag(Base, BaseMixin):
     """Encapsulate a Twitter #hashtag."""
@@ -91,6 +91,51 @@ class Deal(Base, BaseMixin):
         }
     
 
+
+class Tweet(Base, BaseMixin):
+    """Encapsulate a tweet."""
+    
+    __tablename__ = 'tweets'
+    
+    id =  Column(BigInteger, primary_key=True)
+    
+    # ``JSON.dumps`` of the tweet data.
+    body = Column(UnicodeText)
+    
+    # Belongs to a user, through a TwitterAccount.
+    user_twitter_id = Column(BigInteger)
+    
+    # Many to many with Hashtags.
+    hashtags = relationship(Hashtag, secondary="tweets_to_hashtags",
+            backref="tweets")
+    
+    def __json__(self):
+        """Return a dictionary representation of the ``Tweet`` instance."""
+        
+        data = json.loads(self.body)
+        data['hashtags'] = [item.__json__() for item in self.hashtags]
+        return data
+    
+
+class TweetRecord(Base, BaseMixin):
+    """A record of a RT or a reply."""
+    
+    __tablename__ = 'tweet_records'
+    
+    # Should either be a RT or a reply.
+    is_retweet = Column(Boolean, default=False)
+    is_reply = Column(Boolean, default=False)
+    
+    tweet_id = Column(BigInteger)
+    by_user_twitter_id = Column(BigInteger)
+
+
+tweets_to_hashtags = Table(
+    'tweets_to_hashtags',
+    Base.metadata,
+    Column('tweet_id', BigInteger, ForeignKey('tweets.id')),
+    Column('hashtag_id', Integer, ForeignKey('hashtags.id'))
+)
 
 #Offer
 #Support
