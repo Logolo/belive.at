@@ -78,14 +78,14 @@ def db_create():
     """Create the postgresql db."""
     
     # Read the db info from the .ini config.
-    db_user = env.config.get('app:main', 'db_user')
+    #db_user = env.config.get('app:main', 'db_user')
     db_name = env.config.get('app:main', 'db_name')
-    db_password = env.config.get('app:main', 'db_password')
+    #db_password = env.config.get('app:main', 'db_password')
     
-    # Create the user.
-    cmd = "CREATE ROLE {0} WITH CREATEDB LOGIN PASSWORD '{1}';"
-    sql = cmd.format(db_user, db_password)
-    sudo('psql postgres -c "{}"'.format(sql), user='postgres')
+    ## Create the user.
+    #cmd = "CREATE ROLE {0} WITH CREATEDB LOGIN PASSWORD '{1}';"
+    #sql = cmd.format(db_user, db_password)
+    #sudo('psql postgres -c "{}"'.format(sql), user='postgres')
     
     # Create the db.
     sudo('createdb -E UTF8 -T template0 -O {0} {1}'.format(db_user, db_name),

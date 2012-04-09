@@ -48,6 +48,7 @@ setup(
         'waitress', 
         'zope.sqlalchemy',
         'SQLAlchemy',
+        'Paste',
         'WebTest'
     ],
     entry_points = """\
