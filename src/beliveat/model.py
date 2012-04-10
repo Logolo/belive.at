@@ -30,37 +30,34 @@ class Hashtag(Base, BaseMixin):
     
 
 
-class DealStatus(Base, BaseMixin):
-    """Lookup table for a ``Deal.status_code``."""
+class AssignmentStatus(Base, BaseMixin):
+    """Lookup table for a ``Assignment.status_code``."""
     
-    __tablename__ = 'deal_statuses'
+    __tablename__ = 'assignment_statuses'
     
     code = Column(Integer, unique=True)
     label = Column(Unicode(32))
 
-class Deal(Base, BaseMixin):
-    """Encapsulate a deal, aka arrangement, made between users to provide and
-      amplify a piece of content.
-    """
+class Assignment(Base, BaseMixin):
+    """Encapsulate a assignment."""
     
-    __tablename__ = 'deals'
+    __tablename__ = 'assignments'
     
     # Human friendly descriptive information.
     title = Column(Unicode(64))
     description = Column(UnicodeText)
     
-    # Dates this deal is valid for.
-    effective_from = Column(DateTime)
-    effective_to = Column(DateTime)
+    ## Dates this assignment is valid for.
+    #effective_from = Column(DateTime)
+    #effective_to = Column(DateTime)
     
-    # XXX Tracking code, potentially used to identify content coming down the
-    # pipe from Twitter.  The idea is the code would be unique to the hashtag
-    # this deal belongs to.
-    tracking_code = Column(Integer)
+    # XXX some kind of GEO range / location?
     
-    # Has a status code.
-    status_code = Column(Integer, ForeignKey('deal_statuses.code'))
-    status = relationship(DealStatus)
+    ## Has a status code.
+    #status_code = Column(Integer, ForeignKey('assignment_statuses.code'))
+    #status = relationship(AssignmentStatus)
+    
+    content_count = Column(Integer)
     
     # Belongs to a hashtag.
     hashtag_id = Column(Integer, ForeignKey('hashtags.id'))
@@ -70,26 +67,93 @@ class Deal(Base, BaseMixin):
     author_id = Column(Integer, ForeignKey('auth_users.id'))
     author = relationship(simpleauth_model.User, lazy='joined')
     
+    @property
+    def rank(self):
+        """"""
+        
+        n = 0
+        
+        # for each promote offer within two weeks
+            # query = Session.query(PromoteOffer.c)
+            # score = 1/max(diff in seconds, 1) * 60*24
+            # n += score
+        
+        # total report offers
+            # query = Session.query(ReportOffer.c)
+            # score = 3/max(diff in seconds, 1) * 60*24
+            # n += score
+        
+        return n
+    
+    
     def __json__(self):
         """Return a dictionary representation of the ``Hashtag`` instance.
           
-              >>> deal = Deal(title='T', description='...', tracking_code=123)
-              >>> deal.hashtag = Hashtag(value='hashtag')
-              >>> deal.author = simpleauth_model.User(username='thruflo')
-              >>> deal.__json__()
-              {'status': None, 'description': '...', 'author': 'thruflo', 'title': 'T', 'tracking_code': 123, 'hashtag': 'hashtag'}
+              >>> assignment = Assignment(title='T', description='...')
+              >>> assignment.hashtag = Hashtag(value='hashtag')
+              >>> assignment.author = simpleauth_model.User(username='thruflo')
+              >>> assignment.__json__()
+              {'description': '...', 'author': 'thruflo', 'title': 'T', 'hashtag': 'hashtag'}
           
         """
         
         return {
             'title': self.title, 
+            'rank': self.rank,
             'description': self.description,
-            'tracking_code': self.tracking_code,
-            'status': self.status_code,
             'hashtag': self.hashtag.value,
             'author': self.author.username
         }
     
+
+
+class PromoteOffer(Base, BaseMixin):
+    """Encapsulate an offer to promote an assignment."""
+    
+    __tablename__ = 'promote_offers'
+    
+    # note = Column(UnicodeText)
+    
+    # XXX n.b.: fill in with the current assignment's count on init.
+    promotion_records_count = Column(Integer)
+    
+    assignment_id = Column(Integer, ForeignKey('assignments.id'))
+    assignment = relationship(Assignment, lazy='joined')
+    
+    user_id = Column(Integer, ForeignKey('auth_users.id'))
+    user = relationship(simpleauth_model.User, lazy='joined',
+            backref='promote_offers')
+
+class ProductionOffer(Base, BaseMixin):
+    """Encapsulate an offer to fulfill an assignment."""
+    
+    __tablename__ = 'report_offers'
+    
+    # note = Column(UnicodeText)
+    
+    assignment_id = Column(Integer, ForeignKey('assignments.id'))
+    assignment = relationship(Assignment, lazy='joined')
+    
+    user_id = Column(Integer, ForeignKey('auth_users.id'))
+    user = relationship(simpleauth_model.User, lazy='joined',
+            backref='report_offers')
+
+class Content(Base, BaseMixin):
+    """"""
+    
+    # ...
+
+class ContentPromotionRecord(Base, BaseMixin):
+    """"""
+    
+    content_id = Column(Integer, ForeignKey('content.id'))
+    content = relationship(Content, backref='content_promotion_records')
+    
+    offer_id = Column(Integer, ForeignKey('promote_offers.id'))
+    offer = relationship(PromoteOffer, backref='content_promotion_records')
+    
+    # three way code for the action that was taken
+    action_code = Column(Integer)
 
 
 class Tweet(Base, BaseMixin):
