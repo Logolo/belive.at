@@ -46,6 +46,7 @@ setup(
         'pyramid_weblayer', 
         'python-dateutil', 
         'python-postmark', 
+        'redis',
         'setuptools-git', 
         'transaction', 
         'tweepy',
@@ -61,7 +62,7 @@ setup(
         [paste.app_factory]
         main = beliveat:main
         [console_scripts]
-        beliveat_tweets_consumer = beliveat.tweets:consume
-        beliveat_tweets_processor = beliveat.tweets:process
+        beliveat_stream_consumer = beliveat.stream:main
+        beliveat_queue_processor = beliveat.queue:main
     """
 )

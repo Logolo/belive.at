@@ -18,6 +18,7 @@ from pyramid_beaker import session_factory_from_settings
 from pyramid_simpleauth.hooks import get_roles
 from pyramid_simpleauth.tree import UserRoot
 
+from .hooks import get_redis_client
 from .model import Base
 from .tree import Root
 from .view import not_found_view
@@ -42,6 +43,9 @@ def main(global_config, **settings):
     config.add_route('foo', 'foo')
     config.add_route('users', 'users/*traverse', factory=UserRoot,
                      use_global_views=True)
+    
+    # Extend the request.
+    config.set_request_property(get_redis_client, 'redis', reify=True)
     
     # Configure a custom 404 that first tries to append a slash to the URL.
     not_found = AppendSlashNotFoundViewFactory(not_found_view)
