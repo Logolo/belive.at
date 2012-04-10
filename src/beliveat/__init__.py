@@ -44,6 +44,9 @@ def main(global_config, **settings):
     config.add_route('users', 'users/*traverse', factory=UserRoot,
                      use_global_views=True)
     
+    config.add_static_view('socket.io/lib', 'intr:static')
+    config.add_route('socket_io', 'socket.io/*remaining')
+
     # Extend the request.
     config.set_request_property(get_redis_client, 'redis', reify=True)
     
