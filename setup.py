@@ -60,6 +60,7 @@ setup(
         [paste.app_factory]
         main = beliveat:main
         [console_scripts]
-        beliveat_consumer = beliveat.consumer:main
+        beliveat_tweets_consumer = beliveat.tweets:consume
+        beliveat_tweets_processor = beliveat.tweets:process
     """
 )

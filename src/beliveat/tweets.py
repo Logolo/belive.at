@@ -77,10 +77,8 @@ class StreamListener(tweepy.StreamListener):
     def on_data(self, raw_data):
         """Called when raw data is received from connection."""
         
-        # Decode into a unicode string.
-        text = unicode(raw_data, 'utf-8')
         # Call the handle_function
-        self.handle_function(text)
+        self.handle_function(raw_data)
     
     def on_error(self, status_code):
         logging.warn('Error: status code %s' % status_code)
@@ -163,65 +161,23 @@ class Manager(object):
     follow_ids = []
     track_keywords = []
     
-    def handle_twitter_data(self, text):
-        """"""
+    def handle_twitter_data(self, raw_data):
+        """Put incoming tweets onto the beanstalk queue."""
         
         # If the text doesn't looks valid, ignore it.
-        is_status = 'in_reply_to_status_id' in text
-        is_deletion = 'delete' in text
+        is_status = 'in_reply_to_status_id' in raw_data
+        is_deletion = 'delete' in raw_data
         if not bool(is_status or is_deletion):
             return
-        # Try to parse the JSON text into a data dict.
-        try:
-            data = json.loads(text)
-        except Exception as err:
-            logging.warn(err)
-            return
-        # Inside a transaction.
-        with transaction.manager:
-            # If we're dealing with a status.
-            if data.has_key('in_reply_to_status_id'):
-                # If it's a RT...
-                if data.has_key('retweeted_status'):
-                    record = TweetRecord(is_retweet=True, is_reply=False)
-                    record.tweet_id = data['retweeted_status']['id']
-                    record.by_user_twitter_id = data['user']['id']
-                    save_to_db(record)
-                    of = data['retweeted_status']['user']['screen_name']
-                    by = data['user']['screen_name']
-                    logging.info('RT of @{0} by @{1}.'.format(of, by))
-                # If it's a reply...
-                elif data.get('in_reply_to_user_id'):
-                    record = TweetRecord(is_retweet=False, is_reply=True)
-                    record.tweet_id = data['in_reply_to_status_id']
-                    record.by_user_twitter_id = data['user']['id']
-                    save_to_db(record)
-                    to = data['in_reply_to_screen_name']
-                    by = data['user']['screen_name']
-                    logging.info('@reply to @{0} by @{1}.'.format(to, by))
-                # If it's a normal tweet that we haven't seen already...
-                elif not Tweet.query.get(data['id']):
-                    tweet = Tweet(id=data['id'])
-                    tweet.body = text
-                    tweet.user_twitter_id = data['user']['id']
-                    for item in ttp.Parser().parse(data['text']).tags:
-                        item = item.lower()
-                        query = Hashtag.query
-                        hashtag = query.filter_by(value=item).first()
-                        if not hashtag:
-                            hashtag = Hashtag(value=item)
-                        tweet.hashtags.append(hashtag)
-                    save_to_db(tweet)
-                    from_ = data['user']['screen_name']
-                    text = data['text']
-                    logging.info(u'@{0}: {1}'.format(from_, text))
-            # Else if it's a deletion record, delete the corresponding tweet.
-            elif data.has_key('delete'):
-                id_ = data['delete']['status']['id']
-                tweet = Tweet.query.get(id_)
-                if tweet:
-                    Session.delete(tweet)
-                logging.info('Deleted %d' % id_)
+        
+        logging.info('XXX skipping the queue thing.')
+        
+        handle_status(raw_data)
+        
+        ## Otherwise put it on the output queue.
+        #self.beanstalk_client.put(raw_data)
+        #
+        #logging.info(raw_data)
     
     def handle_queue_data(self, text):
         """We accept two different instructions from the beanstalk queue:
@@ -339,6 +295,7 @@ class Manager(object):
         self.stream_listener = StreamListener(self.handle_twitter_data)
         # Setup the queue processor, telling it to pass data from the beanstalk
         # client to ``self.handle_queue_data``.
+        self.beanstalk_client = beanstalk_client
         self.processor = QueueProcessor(beanstalk_client, self.handle_queue_data)
         # Save a handle on the Twitter oauth handler.
         self.oauth_handler = oauth_handler
@@ -347,40 +304,137 @@ class Manager(object):
     
 
 
-def main(args=None):
-    """Main entry point (uses the first command line arg as the log level)."""
+def handle_status(raw_data):
+    """Handle data from the Twitter Streaming API, via the beanstalk queue."""
     
-    # Parse the command line unless ``args`` has been passed in.
-    parser = argparse.ArgumentParser()
+    # Decode into a unicode string.
+    text = unicode(raw_data, 'utf-8')
+    
+    # Try to parse the JSON text into a data dict.
+    try:
+        data = json.loads(text)
+    except Exception as err:
+        logging.warn(err)
+        return
+    
+    # Inside a transaction.
+    with transaction.manager:
+        # If we're dealing with a status.
+        if data.has_key('in_reply_to_status_id'):
+            # If it's a RT...
+            if data.has_key('retweeted_status'):
+                record = TweetRecord(is_retweet=True, is_reply=False)
+                record.tweet_id = data['retweeted_status']['id']
+                record.by_user_twitter_id = data['user']['id']
+                save_to_db(record)
+                of = data['retweeted_status']['user']['screen_name']
+                by = data['user']['screen_name']
+                logging.info('RT of @{0} by @{1}.'.format(of, by))
+            # If it's a reply...
+            elif data.get('in_reply_to_user_id'):
+                record = TweetRecord(is_retweet=False, is_reply=True)
+                record.tweet_id = data['in_reply_to_status_id']
+                record.by_user_twitter_id = data['user']['id']
+                save_to_db(record)
+                to = data['in_reply_to_screen_name']
+                by = data['user']['screen_name']
+                logging.info('@reply to @{0} by @{1}.'.format(to, by))
+            # If it's a normal tweet that we haven't seen already...
+            elif not Tweet.query.get(data['id']):
+                tweet = Tweet(id=data['id'])
+                tweet.body = text
+                tweet.user_twitter_id = data['user']['id']
+                for item in ttp.Parser().parse(data['text']).tags:
+                    item = item.lower()
+                    query = Hashtag.query
+                    hashtag = query.filter_by(value=item).first()
+                    if not hashtag:
+                        hashtag = Hashtag(value=item)
+                    tweet.hashtags.append(hashtag)
+                save_to_db(tweet)
+                from_ = data['user']['screen_name']
+                text = data['text']
+                logging.info(u'@{0}: {1}'.format(from_, text))
+        # Else if it's a deletion record, delete the corresponding tweet.
+        elif data.has_key('delete'):
+            id_ = data['delete']['status']['id']
+            tweet = Tweet.query.get(id_)
+            if tweet:
+                Session.delete(tweet)
+            logging.info('Deleted %d' % id_)
+
+
+def parse_args(input_q='belive_instructions', output_q='belive_tweets', parser_cls=None):
+    """Parse the command line arguments."""
+    
+    # Test jig.
+    if parser_cls is None:
+        parser_cls = argparse.ArgumentParser
+    
+    parser = parser_cls()
     parser.add_argument('config_file', metavar='CONFIG_FILE', nargs=1,
             help='The .ini file to look for the Twitter config in?')
-    parser.add_argument("--input-queue", dest="input_queue", default='beliveat_input',
+    parser.add_argument("--input-queue", dest="input_queue", default=input_q,
             help="Name of the beanstalk tube to consume. Defaults to %(default)s.")
-    parser.add_argument("--output-queue", dest="output_queue", default='beliveat_output',
+    parser.add_argument("--output-queue", dest="output_queue", default=output_q,
             help="Name of the beanstalk tube to output to. Defaults to %(default)s.")
     parser.add_argument("--log-level", dest="log_level", default='INFO',
             help='Logging level. Defaults to %(default)s.')
-    if args is None: # pragma
-        args = parser.parse_args()
+    return parser.parse_args()
+
+
+def process(args=None):
+    """Process tweets."""
+    
+    # Parse the command line args.
+    if args is None:
+        args = parse_args(input_q='belive_tweets')
     
     # Setup logging.
     level = getattr(logging, args.log_level)
     logging.basicConfig(level=args.log_level)
     
-    # Setup the beanstalk client.
-    beanstalk_client = beanstalk_factory(args.input_queue, args.output_queue)
-    
-    # Setup the oauth handler.
+    # Read the config file.
     config = ConfigParser.SafeConfigParser()
     config.read(args.config_file)
-    oauth_handler = oauth_handler_factory(config)
     
     # Bind the model classes.
     engine = create_engine(config.get('app:beliveat', 'sqlalchemy.url'))
     bind_engine(engine)
     
-    # Instantiate a ``Manager`` and start it running.
-    manager = Manager(beanstalk_client, oauth_handler)
+    # Setup the beanstalk queue processor.
+    client = beanstalk_factory(args.input_queue, args.output_queue)
+    processor = QueueProcessor(client, handle_status)
+    
+    try:
+        processor.start()
+    except KeyboardInterrupt:
+        pass
+
+def consume(args=None):
+    """Consume the Twitter Streaming API."""
+    
+    # Parse the command line args.
+    if args is None:
+        args = parse_args()
+    
+    # Setup logging.
+    level = getattr(logging, args.log_level)
+    logging.basicConfig(level=args.log_level)
+    
+    # Read the config file.
+    config = ConfigParser.SafeConfigParser()
+    config.read(args.config_file)
+    
+    # Bind the model classes.
+    engine = create_engine(config.get('app:beliveat', 'sqlalchemy.url'))
+    bind_engine(engine)
+    
+    # Instantiate a ``Manager`` with a beanstalk client and oauth handler and
+    # start the manager running.
+    client = beanstalk_factory(args.input_queue, args.output_queue)
+    handler = oauth_handler_factory(config)
+    manager = Manager(client, handler)
     try:
         manager.start()
     except KeyboardInterrupt:
