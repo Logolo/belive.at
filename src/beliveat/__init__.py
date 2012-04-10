@@ -39,8 +39,9 @@ def main(global_config, **settings):
     config.include('pyramid_basemodel')
     
     # Expose routes.
-    config.add_route('index', '')
-    config.add_route('foo', 'foo')
+    config.add_route('index', '') # <!-- splash page
+    config.add_route('dashboard', 'dashboard')
+    config.add_route('assignments', 'assignments/*traverse')
     config.add_route('users', 'users/*traverse', factory=UserRoot,
                      use_global_views=True)
     
