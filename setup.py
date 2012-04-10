@@ -40,6 +40,7 @@ setup(
         'pyramid_debugtoolbar', 
         'pyramid_simpleauth>=0.2.1', 
         'pyramid_simpleform', 
+        'pyramid_socketio',
         'pyramid_twitterauth>=0.2',
         'pyramid_tm', 
         'pyramid_weblayer', 
