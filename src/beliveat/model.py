@@ -29,15 +29,6 @@ class Hashtag(Base, BaseMixin):
         return {'value': self.value}
     
 
-
-class AssignmentStatus(Base, BaseMixin):
-    """Lookup table for a ``Assignment.status_code``."""
-    
-    __tablename__ = 'assignment_statuses'
-    
-    code = Column(Integer, unique=True)
-    label = Column(Unicode(32))
-
 class Assignment(Base, BaseMixin):
     """Encapsulate a assignment."""
     
@@ -106,13 +97,12 @@ class Assignment(Base, BaseMixin):
         }
     
 
-
 class PromoteOffer(Base, BaseMixin):
     """Encapsulate an offer to promote an assignment."""
     
     __tablename__ = 'promote_offers'
     
-    # note = Column(UnicodeText)
+    note = Column(UnicodeText)
     
     # XXX n.b.: fill in with the current assignment's count on init.
     promotion_records_count = Column(Integer)
@@ -124,12 +114,12 @@ class PromoteOffer(Base, BaseMixin):
     user = relationship(simpleauth_model.User, lazy='joined',
             backref='promote_offers')
 
-class ProductionOffer(Base, BaseMixin):
+class ReportOffer(Base, BaseMixin):
     """Encapsulate an offer to fulfill an assignment."""
     
     __tablename__ = 'report_offers'
     
-    # note = Column(UnicodeText)
+    note = Column(UnicodeText)
     
     assignment_id = Column(Integer, ForeignKey('assignments.id'))
     assignment = relationship(Assignment, lazy='joined')
@@ -138,23 +128,17 @@ class ProductionOffer(Base, BaseMixin):
     user = relationship(simpleauth_model.User, lazy='joined',
             backref='report_offers')
 
-class Content(Base, BaseMixin):
+class PromotionRecord(Base, BaseMixin):
     """"""
     
-    # ...
-
-class ContentPromotionRecord(Base, BaseMixin):
-    """"""
-    
-    content_id = Column(Integer, ForeignKey('content.id'))
-    content = relationship(Content, backref='content_promotion_records')
+    tweet_id = Column(Integer, ForeignKey('tweets.id'))
+    tweet = relationship(Content, backref='promotion_records')
     
     offer_id = Column(Integer, ForeignKey('promote_offers.id'))
-    offer = relationship(PromoteOffer, backref='content_promotion_records')
+    offer = relationship(PromoteOffer, backref='promotion_records')
     
     # three way code for the action that was taken
     action_code = Column(Integer)
-
 
 class Tweet(Base, BaseMixin):
     """Encapsulate a tweet."""
