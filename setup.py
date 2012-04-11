@@ -28,6 +28,7 @@ setup(
         'coverage',
         'fabric',
         'formencode', 
+        'gevent',
         'gunicorn',
         'mock',
         'nose',
