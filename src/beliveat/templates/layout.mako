@@ -8,7 +8,7 @@
     <script src="https://raw.github.com/LearnBoost/socket.io-client/master/dist/socket.io.js"></script>
     <script>
       socket = io.connect('http://localhost:6543/live');
-	  socket.emit('join', {hello: 'world'});
+      socket.emit('join', {hello: 'world'});
     </script>
   </head>
   <body>
