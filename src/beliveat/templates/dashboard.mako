@@ -1,3 +1,10 @@
 <%inherit file="beliveat:templates/layout.mako" />
 
-... dashboard of content and assignments ...
+<%def name="sub_title()">${_(u'Dashboard')}</%def>
+
+<h1>#Syria</h1>
+
+<p>
+  ...
+</p>
+
