@@ -132,7 +132,7 @@ class PromotionRecord(Base, BaseMixin):
     """"""
     
     tweet_id = Column(Integer, ForeignKey('tweets.id'))
-    tweet = relationship(Content, backref='promotion_records')
+    tweet = relationship(Tweet, backref='promotion_records')
     
     offer_id = Column(Integer, ForeignKey('promote_offers.id'))
     offer = relationship(PromoteOffer, backref='promotion_records')
@@ -184,11 +184,3 @@ tweets_to_hashtags = Table(
     Column('tweet_id', BigInteger, ForeignKey('tweets.id')),
     Column('hashtag_id', Integer, ForeignKey('hashtags.id'))
 )
-
-#Offer
-#Support
-
-#Match Subscription
-#Tweet
-
-#Content Item
