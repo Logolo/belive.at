@@ -3,6 +3,10 @@ generate:
     source: 
       - ../src/beliveat/static/js/underscore.js
       - ../src/beliveat/static/js/backbone.js
+      - ../third_party/mobone/_namespace.coffee
+      - ../third_party/mobone/math.coffee
+      - ../third_party/mobone/string.coffee
+      - ../src/beliveat/static/js/twttr.txt.js
       - ../src/beliveat/static/bootstrap-2.0.2/js/bootstrap.js
       - ../src/beliveat/static/js/socket.io.js
     uglify:
@@ -22,7 +26,8 @@ generate:
     source: 
       - raw: | 
           (function () {
-      - ../src/beliveat/static/coffee/*.coffee
+      - ../src/beliveat/static/coffee/templates.coffee
+      - ../src/beliveat/static/coffee/site.coffee
       - raw: |
           })();
     uglify:
