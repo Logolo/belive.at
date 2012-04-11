@@ -22,7 +22,7 @@ generate:
     source: 
       - raw: | 
           (function () {
-      - ../src/beliveat/static/js/*.coffee
+      - ../src/beliveat/static/coffee/*.coffee
       - raw: |
           })();
     uglify:
