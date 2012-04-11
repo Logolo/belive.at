@@ -3,8 +3,8 @@ generate:
     source: 
       - ../src/beliveat/static/js/underscore.js
       - ../src/beliveat/static/js/backbone.js
-      - ../src/beliveat/static/js/socket.io.js
       - ../src/beliveat/static/bootstrap-2.0.2/js/bootstrap.js
+      - ../src/beliveat/static/js/socket.io.js
     uglify:
       - --define-from-module
       - config
