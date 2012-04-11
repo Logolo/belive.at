@@ -69,7 +69,7 @@ class Assignment(Base, BaseMixin):
             # score = 1/max(diff in seconds, 1) * 60*24
             # n += score
         
-        # total report offers
+        # total cover offers
             # query = Session.query(ReportOffer.c)
             # score = 3/max(diff in seconds, 1) * 60*24
             # n += score
@@ -152,10 +152,10 @@ class PromoteOffer(Base, BaseMixin):
     user = relationship(simpleauth_model.User, lazy='joined',
             backref='promote_offers')
 
-class ReportOffer(Base, BaseMixin):
-    """Encapsulate an offer to fulfill an assignment."""
+class CoverOffer(Base, BaseMixin):
+    """Encapsulate an offer to cover an assignment."""
     
-    __tablename__ = 'report_offers'
+    __tablename__ = 'cover_offers'
     
     note = Column(UnicodeText)
     
@@ -164,7 +164,7 @@ class ReportOffer(Base, BaseMixin):
     
     user_id = Column(Integer, ForeignKey('auth_users.id'))
     user = relationship(simpleauth_model.User, lazy='joined',
-            backref='report_offers')
+            backref='cover_offers')
 
 class PromotionRecord(Base, BaseMixin):
     """"""
@@ -179,6 +179,17 @@ class PromotionRecord(Base, BaseMixin):
     
     # three way code for the action that was taken
     action_code = Column(Integer)
+
+class CoverageRecord(Base, BaseMixin):
+    """"""
+    
+    __tablename__ = 'coverage_records'
+    
+    tweet_id = Column(Integer, ForeignKey('tweets.id'))
+    tweet = relationship(Tweet, backref='coverage_records')
+    
+    offer_id = Column(Integer, ForeignKey('cover_offers.id'))
+    offer = relationship(CoverOffer, backref='coverage_records')
 
 
 tweets_to_hashtags = Table(
