@@ -21,7 +21,7 @@
               <a href="/">${_(u'Index')}</a>
             </li>
             <li>
-              <a href="/foo">${_(u'Foo')}</a>
+              <a href="/dashboard">${_(u'Dashboard')}</a>
             </li>
             % if request.is_authenticated:
               <li>
