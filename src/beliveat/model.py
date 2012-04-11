@@ -81,10 +81,11 @@ class Assignment(Base, BaseMixin):
         """Return a dictionary representation of the ``Hashtag`` instance.
           
               >>> assignment = Assignment(title='T', description='...')
-              >>> assignment.hashtag = Hashtag(value='hashtag')
+              >>> assignment.hashtag = Hashtag(value='tag')
               >>> assignment.author = simpleauth_model.User(username='thruflo')
               >>> assignment.__json__()
-              {'description': '...', 'author': 'thruflo', 'title': 'T', 'hashtag': 'hashtag'}
+              {'author': 'thruflo', 'hashtag': 'tag', 'description': '...', 'rank': 0, 'title': 'T'}
+              
           
         """
         
@@ -96,49 +97,6 @@ class Assignment(Base, BaseMixin):
             'author': self.author.username
         }
     
-
-class PromoteOffer(Base, BaseMixin):
-    """Encapsulate an offer to promote an assignment."""
-    
-    __tablename__ = 'promote_offers'
-    
-    note = Column(UnicodeText)
-    
-    # XXX n.b.: fill in with the current assignment's count on init.
-    promotion_records_count = Column(Integer)
-    
-    assignment_id = Column(Integer, ForeignKey('assignments.id'))
-    assignment = relationship(Assignment, lazy='joined')
-    
-    user_id = Column(Integer, ForeignKey('auth_users.id'))
-    user = relationship(simpleauth_model.User, lazy='joined',
-            backref='promote_offers')
-
-class ReportOffer(Base, BaseMixin):
-    """Encapsulate an offer to fulfill an assignment."""
-    
-    __tablename__ = 'report_offers'
-    
-    note = Column(UnicodeText)
-    
-    assignment_id = Column(Integer, ForeignKey('assignments.id'))
-    assignment = relationship(Assignment, lazy='joined')
-    
-    user_id = Column(Integer, ForeignKey('auth_users.id'))
-    user = relationship(simpleauth_model.User, lazy='joined',
-            backref='report_offers')
-
-class PromotionRecord(Base, BaseMixin):
-    """"""
-    
-    tweet_id = Column(Integer, ForeignKey('tweets.id'))
-    tweet = relationship(Tweet, backref='promotion_records')
-    
-    offer_id = Column(Integer, ForeignKey('promote_offers.id'))
-    offer = relationship(PromoteOffer, backref='promotion_records')
-    
-    # three way code for the action that was taken
-    action_code = Column(Integer)
 
 class Tweet(Base, BaseMixin):
     """Encapsulate a tweet."""
@@ -176,6 +134,51 @@ class TweetRecord(Base, BaseMixin):
     
     tweet_id = Column(BigInteger)
     by_user_twitter_id = Column(BigInteger)
+
+class PromoteOffer(Base, BaseMixin):
+    """Encapsulate an offer to promote an assignment."""
+    
+    __tablename__ = 'promote_offers'
+    
+    note = Column(UnicodeText)
+    
+    # XXX n.b.: fill in with the current assignment's count on init.
+    promotion_records_count = Column(Integer)
+    
+    assignment_id = Column(Integer, ForeignKey('assignments.id'))
+    assignment = relationship(Assignment, lazy='joined')
+    
+    user_id = Column(Integer, ForeignKey('auth_users.id'))
+    user = relationship(simpleauth_model.User, lazy='joined',
+            backref='promote_offers')
+
+class ReportOffer(Base, BaseMixin):
+    """Encapsulate an offer to fulfill an assignment."""
+    
+    __tablename__ = 'report_offers'
+    
+    note = Column(UnicodeText)
+    
+    assignment_id = Column(Integer, ForeignKey('assignments.id'))
+    assignment = relationship(Assignment, lazy='joined')
+    
+    user_id = Column(Integer, ForeignKey('auth_users.id'))
+    user = relationship(simpleauth_model.User, lazy='joined',
+            backref='report_offers')
+
+class PromotionRecord(Base, BaseMixin):
+    """"""
+    
+    __tablename__ = 'promotion_records'
+    
+    tweet_id = Column(Integer, ForeignKey('tweets.id'))
+    tweet = relationship(Tweet, backref='promotion_records')
+    
+    offer_id = Column(Integer, ForeignKey('promote_offers.id'))
+    offer = relationship(PromoteOffer, backref='promotion_records')
+    
+    # three way code for the action that was taken
+    action_code = Column(Integer)
 
 
 tweets_to_hashtags = Table(
