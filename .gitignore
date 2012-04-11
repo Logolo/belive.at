@@ -4,3 +4,4 @@ include/
 lib/
 src/beliveat.egg-info/
 *.pyc
+var/assets
