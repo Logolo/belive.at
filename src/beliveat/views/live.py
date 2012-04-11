@@ -22,15 +22,16 @@ class LiveContext(SocketIONamespace):
         # Subscribe to redis notifications, listening for any events matching
         # ``*.user.canonical_id``.
         user = self.request.user
-        pattern = '*.{0}'.format(user.canonical_id)
+        pattern = '*:{0}'.format(user.canonical_id)
         redis = get_redis_client()
         subscriber = redis.pubsub()
         subscriber.psubscribe([pattern])
         logger.debug(u'Subscribing {0} to redis notifications'.format(user.username))
         for notification in subscriber.listen():
-            event = notification['channel'].split('.')[0]
-            logger.debug(u'Emitting {0} event'.format(event))
-            self.emit(event, notification['data'])
+            parts = notification['channel'].split(':')
+            name = parts[0]
+            hashtag = parts[1]
+            self.emit('notification', name, hashtag, notification['data'])
     
 
 
