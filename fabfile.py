@@ -200,3 +200,18 @@ def reset_password(username, password):
     
     raise NotImplementedError
 
+
+def fake_tweet():
+    import random
+    import json
+    tweet_id = int(random.random() * 30000000)
+    data = {
+        "in_reply_to_status_id": None,
+        "id": tweet_id,
+        "text": "Syria says it will stop fighting by UN deadline... http:\/\/t.co\/NBfd6ZnW #Syria",
+        "user": {"id": 418806352, "screen_name": "BeLiveat"}
+    }
+    from beliveat.hooks import get_redis_client
+    r = get_redis_client()
+    r.rpush('beliveat.queue:input', json.dumps(data))
+
