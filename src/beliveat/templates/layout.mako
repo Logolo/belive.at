@@ -1,20 +1,20 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="..." />
     <meta name="author" content="..." />
-    <title>
-      BeLive.at
-    </title>
+    <title>${self.sub_title()} - ${request.registry.settings['site_title']}</title>
     <link rel="stylesheet" type="text/css" href="${request.static_url('beliveat:assets/base.css')}" />
     <link rel="stylesheet" type="text/css" href="${request.static_url('beliveat:assets/style.css')}" />
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <%def name="sub_title()">
+    </%def>
   </head>
   <body>
     <div class="navbar navbar-fixed-top">
@@ -24,7 +24,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="/">BeLive.at</a>
+          <a class="brand" href="/">${request.registry.settings['site_title']}</a>
           <div class="nav-collapse">
             <ul class="nav">
               <li>
