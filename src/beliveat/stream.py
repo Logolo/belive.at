@@ -157,7 +157,7 @@ class Manager(object):
         #self.follow_ids = get_all_twitter_ids()
         #self.track_keywords = get_all_hashtags()
         
-        self.track_keywords = ['#syria']
+        self.track_keywords = ['#testsyria']
     
     def reconnect(self):
         """Disconnect existing clients and fire up a new one."""

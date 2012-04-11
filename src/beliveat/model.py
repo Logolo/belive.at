@@ -2,6 +2,8 @@
 
 """"""
 
+import json
+
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Unicode, UnicodeText
 from sqlalchemy.orm import backref, relationship
@@ -119,7 +121,7 @@ class Tweet(Base, BaseMixin):
         """Return a dictionary representation of the ``Tweet`` instance."""
         
         data = json.loads(self.body)
-        data['hashtags'] = [item.__json__() for item in self.hashtags]
+        data['hashtags'] = [item.value for item in self.hashtags]
         return data
     
 

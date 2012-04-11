@@ -6,7 +6,11 @@ import logging
 import ttp
 
 from pyramid_basemodel import Session, save as save_to_db
-from .model import Hashtag, Tweet, TweetRecord
+from pyramid_simpleauth.model import User
+from pyramid_twitterauth.model import TwitterAccount
+
+from .hooks import get_redis_client
+from .model import CoverOffer, Hashtag, Tweet, TweetRecord
 
 def handle_retweet(data, model_cls=TweetRecord, save=save_to_db):
     """Record a retweet from the Twitter API."""
@@ -42,6 +46,7 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
     if existing:
         return
     
+    # Store it in the db.
     tweet = tweet_cls(id=data['id'])
     tweet.body = text
     tweet.user_twitter_id = data['user']['id']
@@ -53,6 +58,20 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
             hashtag = hashtag_cls(value=item)
         tweet.hashtags.append(hashtag)
         save(tweet)
+    
+    # Notify all the users who might want to use this Tweet to cover an assignment.
+    hashtag_values = [item.value for item in tweet.hashtags]
+    query = CoverOffer.query.filter(Hashtag.value.in_(hashtag_values))
+    query = query.filter(TwitterAccount.twitter_id==tweet.user_twitter_id)
+    
+    logging.warn('XXX will we delete ``CoverOffer``s or retire them?')
+    
+    redis_client = get_redis_client()
+    for offer in query.all():
+        canonical_id = offer.user.canonical_id
+        channel = 'tweet.{0}'.format(canonical_id)
+        redis_client.publish(channel, tweet.__json__())
+        logging.info(u'Notifying {0} of new tweet'.format(offer.user.username))
     
     # XXX debug.
     from_ = data['user']['screen_name']
