@@ -16,8 +16,8 @@ import argparse
 from sqlalchemy import create_engine
 from pyramid_basemodel import bind_engine
 
+from .events import handle_deletion, handle_status
 from .hooks import get_redis_client
-from .subscribers import handle_deletion, handle_status
 
 INPUT_CHANNEL = 'beliveat.queue:input'
 
