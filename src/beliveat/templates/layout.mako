@@ -9,9 +9,8 @@
     <title>
       BeLive.at
     </title>
-      static/bootstrap-2.0.2/css/bootstrap 
-      /static/css/site 
-      /static/bootstrap-2.0.2/css/bootstrap-responsive
+    <link rel="stylesheet" type="text/css" href="${request.static_url('beliveat:assets/base.css')}" />
+    <link rel="stylesheet" type="text/css" href="${request.static_url('beliveat:assets/style.css')}" />
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -72,10 +71,7 @@
       </footer>
     </div>
     <script src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
-    socket.io.js
-    static/bootstrap-2.0.2/js/bootstrap
-    /static/js/underscore
-    /static/js/backbone
-    /static/js/site
+    <script src="${request.static_url('beliveat:assets/base.js')}"></script>
+    <script src="${request.static_url('beliveat:assets/client.js')}"></script>
   </body>
 </html>

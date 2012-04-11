@@ -14,6 +14,7 @@ from pyramid.request import Request
 from pyramid.security import NO_PERMISSION_REQUIRED as PUBLIC
 from pyramid.view import AppendSlashNotFoundViewFactory
 
+from pyramid_assetgen import AssetGenRequestMixin
 from pyramid_beaker import session_factory_from_settings
 from pyramid_simpleauth.hooks import get_roles
 from pyramid_simpleauth.tree import UserRoot
@@ -23,6 +24,10 @@ from .model import Base
 from .tree import Root
 from .view import not_found_view
 
+class CustomRequest(AssetGenRequestMixin, Request):
+    pass
+
+
 def main(global_config, **settings):
     """Call with settings to create and return a WSGI application."""
     
@@ -30,6 +35,7 @@ def main(global_config, **settings):
     config = Configurator(settings=settings, root_factory=Root)
     
     # Include packages.
+    config.include('pyramid_assetgen')
     config.include('pyramid_beaker')
     config.include('pyramid_tm')
     config.include('pyramid_weblayer')
@@ -37,6 +43,13 @@ def main(global_config, **settings):
     config.commit()
     config.include('pyramid_twitterauth')
     config.include('pyramid_basemodel')
+    
+    # Make ``request.static_url`` assetgen aware.
+    config.set_request_factory(CustomRequest)
+    
+    # Expose `/static`, cached for two weeks.
+    config.add_static_view('static', 'beliveat:assets', cache_max_age=1209600)
+    config.add_assetgen_manifest('beliveat:assets')
     
     # Expose routes.
     config.add_route('index', '') # <!-- splash page

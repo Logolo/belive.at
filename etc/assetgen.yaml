@@ -1,0 +1,78 @@
+generate:
+- base.js:
+    source: 
+      - ../src/beliveat/static/js/underscore.js
+      - ../src/beliveat/static/js/backbone.js
+      - ../src/beliveat/static/js/socket.io.js
+      - ../src/beliveat/static/bootstrap-2.0.2/js/bootstrap.js
+    uglify:
+      - --define-from-module
+      - config
+    profile.dev:
+      uglify:
+        - --beautify
+        - --no-mangle
+        - --no-squeeze
+        - --define-from-module
+        - config
+      
+    
+
+- client.js:
+    source: 
+      - raw: | 
+          (function () {
+      - ../src/beliveat/static/js/*.coffee
+      - raw: |
+          })();
+    uglify:
+      - --define-from-module
+      - config
+    profile.dev:
+      uglify:
+        - --beautify
+        - --no-mangle
+        - --no-squeeze
+        - --define-from-module
+        - config
+      
+    
+
+- gfx/*:
+    source: ../src/beliveat/gfx/*
+    type: binary
+
+- base.css:
+    source: 
+      - ../src/beliveat/static/bootstrap-2.0.2/css/bootstrap.min.css
+      - ../src/beliveat/static/bootstrap-2.0.2/css/bootstrap-responsive.min.css
+    
+
+- style.css:
+    source: 
+      - ../src/beliveat/static/css/*.css
+    
+
+
+prereqs:
+- ../var/assets/config.js:
+    source: ../src/beliveat/prereqs/config.coffee
+    compressed: false
+
+- ../var/assets/robots.txt:
+    source: ../src/beliveat/prereqs/robots.txt
+    type: binary
+
+
+env:
+  NODE_PATH.prefix: ../var/assets
+
+css.embed.path.root: ../var/assets/gfx
+css.embed.url.base: /static/gfx/
+output.directory: ../var/assets
+output.hashed: true
+output.manifest: ../var/assets/assets.json
+profile.dev:
+  output.hashed: false
+  css.compressed: false
+  js.compressed: false
