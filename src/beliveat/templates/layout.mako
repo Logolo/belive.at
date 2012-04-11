@@ -2,41 +2,80 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="..." />
+    <meta name="author" content="..." />
     <title>
       BeLive.at
     </title>
-    <script src="https://raw.github.com/LearnBoost/socket.io-client/master/dist/socket.io.js"></script>
-    <script>
-      socket = io.connect('http://localhost:6543/live');
-      socket.emit('join', {hello: 'world'});
-    </script>
+      static/bootstrap-2.0.2/css/bootstrap 
+      /static/css/site 
+      /static/bootstrap-2.0.2/css/bootstrap-responsive
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
   <body>
-    <div class="topbar">
-      <div class="topbar-inner">
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
         <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
           <a class="brand" href="/">BeLive.at</a>
-          <ul class="nav">
-            <li>
-              <a href="/">${_(u'Index')}</a>
-            </li>
-            <li>
-              <a href="/dashboard">${_(u'Dashboard')}</a>
-            </li>
-            % if request.is_authenticated:
+          <div class="nav-collapse">
+            <ul class="nav">
               <li>
-                <a href="/users/${request.user.username}">${_(u'Profile')}</a>
+                <a href="/">${_(u'Index')}</a>
               </li>
               <li>
-                <a href="/auth/logout">${_(u'Logout')}</a>
+                <a href="/dashboard">${_(u'Dashboard')}</a>
               </li>
-            % endif
-          </ul>
+            </ul>
+            <ul class="nav pull-right">
+              % if request.is_authenticated:
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle"
+                      data-toggle="dropdown">
+                    ${request.user.username}
+                    <b class="caret"></b>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="/users/${request.user.username}">${_(u'Profile')}</a>
+                    </li>
+                    <li>
+                      <a href="/auth/logout">${_(u'Logout')}</a>
+                    </li>
+                  </ul>
+                </li>
+              % else:
+                <li>
+                  <a href="/oauth/twitter/authenticate">${_(u'Signin with Twitter')}</a>
+                </li>
+              % endif
+            </ul>
+          </div>
         </div>
       </div>
     </div>
     <div id="main-content" class="container-fluid">
-      ${next.body()}
+      <div class="row-fluid">
+        ${next.body()}
+      </div>
+      <hr />
+      <footer>
+        <p>&copy; ...</p>
+      </footer>
     </div>
+    <script src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+    socket.io.js
+    static/bootstrap-2.0.2/js/bootstrap
+    /static/js/underscore
+    /static/js/backbone
+    /static/js/site
   </body>
 </html>
