@@ -6,31 +6,99 @@ body {
   padding: 9px 0;
 }
 
+.clear {
+  clear: both;
+}
+
 div#addAssignmentBlock {
 }
 
-.assignment {
+#dashboard-view ul, #dashboard-view li {
+  list-style: none;
+  margin-left: 0;
+}
+
+#sortedAssignmentsBlock li.assignment {
   background-color: #eee;
-  margin: 0 0 20px 0;
+  margin: 0 0 10px 0;
+  padding: 5px 0;
+  width: 100%;
 }
 
-.promoteBlock {
-  display: inline-block;
+#yourAssignmentsBlock li.assignment {
+  background-color: #fff;
+  border: 1px solid #eee;
 }
 
-.assignmentContent {
-  display: inline-block;
+div.promoteBlock {
+  display: block;
+  float: left;
+  width: 10%;
+  padding: 10px 2px;
 }
 
-.coverBlock {
-  display: inline-block;
+div.assignmentContent {
+  display: block;
+  float: left;
+  width: 75%;
+}
+
+div.coverBlock {
+  display: block;
+  float: right;
+  width: 10%;
+  padding: 10px 2px;
+}
+
+.coverBlock div, .promoteBlock div {text-align: center}
+
+.pledges {
+  font-size: 1.8em;
+  padding-top: 10px;
+}
+
+.pledgesLabel {
+  font-size: .8em;
+  text-transform: uppercase;
+}
+
+.assignmentAuthor {
+  font-size: .8em;
+  padding-bottom: 10px;
 }
 
 .pledgedCoverWrapper {
   background-color: #fff;
-  border: 2px solid #ccc;
+  border: 1px solid #ccc;
   padding: 5px;
-  z-index: 100;
+  position: relative;
+  z-index: 1;
+}
+
+.pledgedCover {
+  margin: 10px 0;
+}
+
+.pledgedCoverTitle {
+  display: block;
+  float: left;
+  width: 90%;
+}
+
+.pledgedCoverIcon {
+  display: block;
+  float: left;
+}
+
+.pledgedCoverClose {
+  display: block;
+  float: right;
+}
+
+.pledgedCoverStatus {
+  font-size: 0.8em;
+  text-transform: uppercase;
+  text-align: right;
 }
 
 .tweetCover {
@@ -38,12 +106,15 @@ div#addAssignmentBlock {
 }
 
 .tweetCover iframe {
-  display: inline-block;
+  display: block;
+  float: right;
   width: 50%;
+  padding: 15px 0 10px 0;
 }
 
 .tweetCover .tweetText {
-  display: inline-block;
+  display: block;
+  float: left;
   width: 50%;
 }
 
@@ -57,7 +128,7 @@ div#addAssignmentBlock {
 
 .tweetCoverWrapper {
   width: 97%;
-  margin: -2px auto 10px auto;
+  margin: -5px auto 10px auto;
   padding: 5px;
   background-color: #eee;
   border-radius: 5px;

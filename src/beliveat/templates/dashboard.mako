@@ -6,21 +6,26 @@
 
 <%def name="assignment()">
   <li class="assignment">
-    <div class="promoteBlock">
-      <span><img src="/static/gfx/promote.png" /></span>
-      <span class="pledges">42</span>
-      <span class="pledgesLabel">Pledges</span>
-    </div>
+      <div class="coverBlock">
+        <a href="#cover">
+          <div><img src="/static/gfx/cover.png" /></div>
+          <div class="pledges">23</div>
+          <div class="pledgesLabel">Pledges</div>
+        </a>
+      </div>
+      <div class="promoteBlock">
+        <a href="#promote">
+          <div><img src="/static/gfx/promote.png" /></div>
+          <div class="pledges">42</div>
+          <div class="pledgesLabel">Pledges</div>
+        </a>
+      </div>
     <div class="assignmentContent">
       <h3>Cover police behaviour at Occupy London next Friday.</h3>
       <p>A bunch of students will be congregating outside St. Paul's cathedral to show support. We want to make sure that there is peace and order...</p>
-      <span class="assignmentAuthor"><img src="/static/gfx/defaultUser.png" />Submitted by TheOccupyGuy.</span>
+      <div class="assignmentAuthor"><img src="/static/gfx/defaultUser.png" />Submitted by TheOccupyGuy.</div>
     </div>
-    <div class="coverBlock">
-      <span><img src="/static/gfx/cover.png" /></span>
-      <span class="pledges">23</span>
-      <span class="pledgesLabel">Pledges</span>
-    </div>
+    <div class="clear"></div>
   </li>
 </%def>
 
@@ -47,6 +52,7 @@
         <button class="buttonHide">Hide</button>
       </div>
     </div>
+    <div class="clear"></div>
   </div>
 </%def>
 
@@ -69,12 +75,15 @@
 <%def name="pledgedCover()">
   <div class="pledgedCover">
     <div class="pledgedCoverBody">
+      <div class="pledgedCoverClose">
+         <button class="btn-mini buttonCoverClose">x</button>
+      </div>
       <div class="pledgedCoverTitle">"Film the awesome blah, blah blah."</div>
       <div class="pledgedCoverIcon">
         <img src="/static/gfx/cover-icon.png" />
-        <i class="icon-remove-circle"></i>
       </div>
     </div>
+    <div class="clear"></div>
     <div class="pledgedCoverStatus">You pledged to report on this.</div>
   </div>
 </%def>
