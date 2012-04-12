@@ -6,6 +6,7 @@ generate:
       - ../third_party/mobone/_namespace.coffee
       - ../third_party/mobone/math.coffee
       - ../third_party/mobone/string.coffee
+      - ../src/beliveat/static/coffee/assetgen.coffee
       - ../src/beliveat/static/js/twttr.txt.js
       - ../src/beliveat/static/bootstrap-2.0.2/js/bootstrap.js
       - ../src/beliveat/static/js/socket.io.js
