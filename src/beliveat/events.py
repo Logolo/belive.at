@@ -2,6 +2,7 @@
 
 """Event handlers."""
 
+import json
 import logging
 import ttp
 
@@ -68,10 +69,10 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
     
     redis_client = get_redis_client()
     for offer in query.all():
+        hashtag = offer.assignment.hashtag.value
         canonical_id = offer.user.canonical_id
-        channel = 'tweet.{0}'.format(canonical_id)
-        redis_client.publish(channel, tweet.__json__())
-        logging.info(u'Notifying {0} of new tweet'.format(offer.user.username))
+        channel = 'own_tweet:{0}:{1}'.format(hashtag, canonical_id)
+        redis_client.publish(channel, tweet.body.encode('utf-8'))
     
     # XXX debug.
     from_ = data['user']['screen_name']

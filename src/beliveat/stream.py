@@ -179,7 +179,7 @@ class Manager(object):
         
         logging.info('Manager.fire_up_new_client()')
         
-        client = cls(self.oauth_handler, self.stream_listener, timeout=55)
+        client = cls(self.oauth_handler, self.stream_listener, timeout=35)
         client.filter(follow=self.follow_ids, track=self.track_keywords, async=True)
         self.clients.append(client)
     

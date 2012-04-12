@@ -1,3 +1,6 @@
 [submodule "third_party/ttp"]
 	path = third_party/ttp
 	url = git://github.com/BonsaiDen/twitter-text-python.git
+[submodule "third_party/mobone"]
+	path = third_party/mobone
+	url = git://github.com/thruflo/mobone.git
