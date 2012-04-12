@@ -122,7 +122,7 @@
                   <input id="addAssignmentSubmit" type="submit" class="btn btn-primary"
                       value="Submit"
                   />
-                  <a class="btn" href="#close">Close</a>
+                  <a class="btn close" href="#close">Close</a>
                 </div>
               </div>
             </fieldset>

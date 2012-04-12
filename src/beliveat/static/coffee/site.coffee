@@ -151,6 +151,8 @@ $ ->
         
         initialize: ->
             # Start closed and render when anything changes.
+            $target = @$ '#addAssignmentDetails'
+            $target.hide()
             @model.set state: @states.close
             @model.bind 'change', @render
             @render()
