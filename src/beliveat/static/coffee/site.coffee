@@ -37,33 +37,36 @@ $ ->
     ### Widgets.
     ###
     
-    # View for a "normal" assignment listing that's available to promote or cover.
-    class AssignmentWidget extends Backbone.View
-        # events: 
-        render: -> @$el.text 'AssignmentWidget'
-        render: -> @$el.text 'AssignmentWidget'
+    # Base class for widgets.
+    class BaseWidget extends Backbone.View
         initialize: ->
             @model.bind 'change', @render
             @model.bind 'destroy', @remove
+            @render()
         
     
+    # View for a "normal" assignment listing that's available to promote or cover.
+    class AssignmentWidget extends BaseWidget
+        # events: 
+        render: -> @$el.text 'AssignmentWidget'
+    
     # View for an assignment that's been selected to promote.
-    class PromoteOfferWidget extends Backbone.View
+    class PromoteOfferWidget extends BaseWidget
         # events: 
         render: -> @$el.text 'PromoteOfferWidget'
     
     # View for an assignment that's been selected to cover.
-    class CoverOfferWidget extends Backbone.View
+    class CoverOfferWidget extends BaseWidget
         # events: 
         render: -> @$el.text 'CoverOfferWidget'
     
     # View for a tweet that's a candidate to promote.
-    class PromoteTweetWidget extends Backbone.View
+    class PromoteTweetWidget extends BaseWidget
         # events: 
         render: -> @$el.text 'PromoteTweetWidget'
     
     # View for a tweet that's a candidate to cover an assignment with.
-    class CoverTweetWidget extends Backbone.View
+    class CoverTweetWidget extends BaseWidget
         # events: 
         render: -> @$el.text 'CoverTweetWidget'
     
@@ -76,48 +79,39 @@ $ ->
     ### Listings.
     ###
     
+    # Base class for listings.
+    class BaseListing extends Backbone.View
+        initialize: ->
+            @collection.bind 'add', (instance) => @add instance
+            @collection.bind 'reset', => @collection.each @add
+        
+    
     # View for the assignments listing.
-    class AssignmentsListing extends Backbone.View
+    class AssignmentsListing extends BaseListing
         add: (instance) ->
             widget = new AssignmentWidget model: instance
-            @el.append widget.$el.html()
-        
-        initialize: ->
-            @collection.bind 'add', @add
-            @collection.bind 'reset', => @collection.each @add
+            @$el.append widget.render().$el.html()
         
     
     # View for the listing of cover offers.
-    class CoverOffersListing extends Backbone.View
+    class CoverOffersListing extends BaseListing
         add: (instance) ->
             widget = new CoverOfferWidget model: instance
-            @el.append widget.$el.html()
-        
-        initialize: ->
-            @collection.bind 'add', @add
-            @collection.bind 'reset', => @collection.each @add
+            @$el.append widget.render().$el.html()
         
     
     # View for the listing of cover offers.
-    class CoverageTweetsListing extends Backbone.View
+    class CoverageTweetsListing extends BaseListing
         add: (instance) ->
             widget = new CoverTweetWidget model: instance
-            @el.append widget.$el.html()
-        
-        initialize: ->
-            @collection.bind 'add', @add
-            @collection.bind 'reset', => @collection.each @add
+            @$el.append widget.$el.html()
         
     
     # View for the listing of promote offers.
-    class PromoteOffersListing extends Backbone.View
+    class PromoteOffersListing extends BaseListing
         add: (instance) ->
             widget = new PromoteOfferWidget model: instance
-            @el.append widget.$el.html()
-        
-        initialize: ->
-            @collection.bind 'add', @add
-            @collection.bind 'reset', => @collection.each @add
+            @$el.append widget.render().$el.html()
         
     
     
