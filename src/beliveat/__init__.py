@@ -19,7 +19,7 @@ from pyramid_beaker import session_factory_from_settings
 from pyramid_simpleauth.hooks import get_roles
 from pyramid_simpleauth.tree import UserRoot
 
-from .hooks import get_redis_client
+from .hooks import get_assetgen_manifest, get_redis_client
 from .model import Base
 from .tree import Root
 from .views.exceptions import not_found_view
@@ -47,9 +47,11 @@ def main(global_config, **settings):
     # Make ``request.static_url`` assetgen aware.
     config.set_request_factory(CustomRequest)
     
-    # Expose `/static`, cached for two weeks.
+    # Expose ``/static``, cached for two weeks and make the assetgen manifest
+    # available as ``request.assets``.
     config.add_static_view('static', 'beliveat:assets', cache_max_age=1209600)
     config.add_assetgen_manifest('beliveat:assets')
+    config.set_request_property(get_assetgen_manifest, 'assets', reify=True)
     
     # Expose routes.
     config.add_route('index', '') # <!-- splash page
@@ -61,7 +63,7 @@ def main(global_config, **settings):
     config.add_static_view('socket.io/lib', 'intr:static')
     config.add_route('live', 'socket.io/*remaining')
     
-    # Extend the request.
+    # Extend the request with a redis client.
     config.set_request_property(get_redis_client, 'redis', reify=True)
     
     # Configure a custom 404 that first tries to append a slash to the URL.

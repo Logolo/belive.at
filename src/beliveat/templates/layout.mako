@@ -71,6 +71,10 @@
     </div>
     <script src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
     <script src="${request.static_url('beliveat:assets/base.js')}"></script>
+    <script type="text/javascript">
+      // Setup the static urls.
+      assetgen.add_manifest('/static', ${request.assets | n});
+    </script>
     <script src="${request.static_url('beliveat:assets/client.js')}"></script>
   </body>
 </html>

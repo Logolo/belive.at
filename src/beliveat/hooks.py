@@ -2,10 +2,13 @@
 
 """Provides ``get_redis_client`` function."""
 
+import json
 import redis
 from redis.connection import UnixDomainSocketConnection
 redis_connection_pool = redis.ConnectionPool(path='/tmp/redis.sock', db=3,
         connection_class=UnixDomainSocketConnection)
+
+from pyramid_assetgen import IAssetGenManifest
 
 def get_redis_client(request=None, cls=redis.StrictRedis):
     """Returns a ``redis`` client.
@@ -25,4 +28,16 @@ def get_redis_client(request=None, cls=redis.StrictRedis):
     """
     
     return cls(connection_pool=redis_connection_pool)
+
+
+def get_assetgen_manifest(request=None, interface_cls=IAssetGenManifest):
+    """Get the manifest data registered for ``beliveat:assets``.
+      
+          >>> raise NotImplementedError
+      
+    """
+    
+    # XXX this is hardcoded and uses a private property.
+    manifest = request.registry.getUtility(interface_cls, 'beliveat:assets/')
+    return json.dumps(manifest._data)
 
