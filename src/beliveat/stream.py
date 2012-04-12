@@ -19,12 +19,14 @@
   We'll miss a tweet every now and then but that's not the end of the world.
 """
 
-import ConfigParser
 import logging
-import threading
-import time
+import logging.config
+logger = logging.getLogger(__name__)
 
 import argparse
+import ConfigParser
+import threading
+import time
 import tweepy
 
 from .hooks import get_redis_client
@@ -62,15 +64,15 @@ class StreamListener(tweepy.StreamListener):
         self.handle_function(data_str)
     
     def on_error(self, status_code):
-        logging.warn('Error: status code %s' % status_code)
+        logger.warn('Error: status code %s' % status_code)
         return True # keep stream alive
     
     def on_timeout(self):
-        logging.info('timeout')
+        logger.info('timeout')
     
     def __init__(self, handle_function, api=None):
         
-        logging.info('StreamListener()')
+        logger.info('StreamListener()')
         
         super(StreamListener, self).__init__(api=api)
         self.handle_function = handle_function
@@ -90,7 +92,7 @@ class Manager(object):
     def handle_twitter_data(self, data_str):
         """Put incoming tweets onto the redis queue."""
         
-        logging.info(data_str)
+        logger.info(data_str)
         
         # If the text doesn't looks valid, ignore it.
         is_status = 'in_reply_to_status_id' in data_str
@@ -112,8 +114,8 @@ class Manager(object):
           
         """
         
-        logging.info('Manager.handle_queue_data()')
-        logging.info(data_str)
+        logger.info('Manager.handle_queue_data()')
+        logger.info(data_str)
         
         # We don't want to fire up a new client if we're already closing.
         if not self.running:
@@ -132,7 +134,7 @@ class Manager(object):
             try: # Parse the text into an int follower id.
                 follower_id = int(text[7:])
             except ValueError as err:
-                logging.warn(err)
+                logger.warn(err)
             else: # Follow the new user and reload.
                 if not bool(follower_id in self.follower_ids):
                     self.follower_ids.append(follower_id)
@@ -143,7 +145,7 @@ class Manager(object):
             try: # Parse the text into a keyword.
                 keyword = text[6:].strip()
             except ValueError as err:
-                logging.warn(err)
+                logger.warn(err)
             else: # Follow the new user and reload.
                 if not bool(keyword in self.track_keywords):
                     self.track_keywords.append(keyword)
@@ -154,7 +156,7 @@ class Manager(object):
           and all Hashtags.  In time, we'll need to put a cap on this.
         """
         
-        logging.warn('XXX Need to actually use the appropriate predicates.')
+        logger.warn('XXX Need to actually use the appropriate predicates.')
         
         #self.follow_ids = get_all_twitter_ids()
         #self.track_keywords = get_all_hashtags()
@@ -170,7 +172,7 @@ class Manager(object):
     def disconnect_existing_clients(self):
         """Tell all the existing clients to disconnect."""
         
-        logging.info('Manager.disconnect_existing_clients()')
+        logger.info('Manager.disconnect_existing_clients()')
         
         for client in self.clients:
             client.disconnect()
@@ -179,7 +181,7 @@ class Manager(object):
     def fire_up_new_client(self, cls=tweepy.streaming.Stream):
         """Create a new streaming client and start it going."""
         
-        logging.info('Manager.fire_up_new_client()')
+        logger.info('Manager.fire_up_new_client()')
         
         client = cls(self.oauth_handler, self.stream_listener, timeout=35)
         client.filter(follow=self.follow_ids, track=self.track_keywords, async=True)
@@ -188,7 +190,7 @@ class Manager(object):
     def stop(self):
         """Stop the processor and disconnect the clients."""
         
-        logging.info('Manager.stop()')
+        logger.info('Manager.stop()')
         
         self.running = False
         self.processor.stop()
@@ -199,7 +201,7 @@ class Manager(object):
           queue processor isn't running, fire that up.
         """
         
-        logging.info('Manager.start()')
+        logger.info('Manager.start()')
         
         self.running = True
         self.processor.start(async=True)
@@ -213,7 +215,7 @@ class Manager(object):
           auth handler and queue processor and load the follow ids.
         """
         
-        logging.info('Manager.__init__()')
+        logger.info('Manager.__init__()')
         
         # Setup the stream listener, telling it to pass data from the streaming
         # api to ``self.handle_twitter_data``.
@@ -238,7 +240,6 @@ def parse_args(parser_cls=argparse.ArgumentParser):
     parser.add_argument('config_file', metavar='CONFIG_FILE', nargs=1)
     parser.add_argument("--input", dest="input_channel", default=INPUT_CHANNEL)
     parser.add_argument("--output", dest="output_channel", default=OUTPUT_CHANNEL)
-    parser.add_argument("--level", dest="log_level", default='INFO')
     return parser.parse_args()
 
 def main(args=None):
@@ -248,13 +249,12 @@ def main(args=None):
     if args is None:
         args = parse_args()
     
-    # Setup logging.
-    level = getattr(logging, args.log_level)
-    logging.basicConfig(level=args.log_level)
-    
     # Read the config file.
     config = ConfigParser.SafeConfigParser()
     config.read(args.config_file)
+    
+    # Setup logging.
+    logging.config.fileConfig(args.config_file)
     
     # Instantiate a ``Manager`` with a redis client and oauth handler and
     # start the manager running.

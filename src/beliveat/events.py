@@ -2,8 +2,10 @@
 
 """Event handlers."""
 
-import json
 import logging
+logger = logging.getLogger(__name__)
+
+import json
 import ttp
 
 from pyramid_basemodel import Session, save as save_to_db
@@ -25,7 +27,7 @@ def handle_retweet(data, model_cls=TweetRecord, save=save_to_db):
     # XXX debug.
     of = data['retweeted_status']['user']['screen_name']
     by = data['user']['screen_name']
-    logging.info('RT of @{0} by @{1}.'.format(of, by))
+    logger.info('RT of @{0} by @{1}.'.format(of, by))
 
 def handle_reply(data, model_cls=TweetRecord, save=save_to_db):
     """Record an ``@reply``."""
@@ -38,7 +40,7 @@ def handle_reply(data, model_cls=TweetRecord, save=save_to_db):
     # XXX debug.
     to = data['in_reply_to_screen_name']
     by = data['user']['screen_name']
-    logging.info('@reply to @{0} by @{1}.'.format(to, by))
+    logger.info('@reply to @{0} by @{1}.'.format(to, by))
 
 def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_db):
     """Store the Tweet."""
@@ -63,7 +65,7 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
     query = CoverOffer.query.filter(Hashtag.value.in_(hashtag_values))
     query = query.filter(TwitterAccount.twitter_id==tweet.user_twitter_id)
     
-    logging.warn('XXX will we delete ``CoverOffer``s or retire them?')
+    logger.warn('XXX will we delete ``CoverOffer``s or retire them?')
     
     redis_client = get_redis_client()
     for offer in query.all():
@@ -75,7 +77,7 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
     # XXX debug.
     from_ = data['user']['screen_name']
     text = data['text']
-    logging.info(u'@{0}: {1}'.format(from_, text))
+    logger.info(u'@{0}: {1}'.format(from_, text))
 
 def handle_status(data, text):
     """Handle a Twitter status."""
@@ -98,5 +100,5 @@ def handle_deletion(data):
         Session.delete(tweet)
     
     # XXX debug.
-    logging.info('Deleted %d' % id_)
+    logger.info('Deleted %d' % id_)
 

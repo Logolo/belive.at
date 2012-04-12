@@ -3,15 +3,17 @@
 
 """Processes data put on a redis queue."""
 
-import ConfigParser
-import json
 import logging
-import sys
-import transaction
-import threading
-import time
+import logging.config
+logger = logging.getLogger(__name__)
 
 import argparse
+import ConfigParser
+import json
+import sys
+import threading
+import time
+import transaction
 
 from sqlalchemy import create_engine
 from pyramid_basemodel import bind_engine
@@ -33,21 +35,21 @@ class QueueProcessor(object):
           processed or the input queue timeout is reached.
         """
         
-        logging.info('QueueProcessor.stop()')
+        logger.info('QueueProcessor.stop()')
         
         self.running = False
     
     def _start(self, timeout=5):
         """Call ``start()`` to start processing the input queue(s)."""
         
-        logging.info('QueueProcessor.start(timeout=%d)' % timeout)
+        logger.info('QueueProcessor.start(timeout=%d)' % timeout)
         
         self.running = True
         while self.running:
             try:
                 return_value = self.redis.blpop(self.channels, timeout=timeout)
             except Exception as err:
-                logging.warn(err)
+                logger.warn(err)
                 time.sleep(10)
             else:
                 if return_value is not None:
@@ -55,8 +57,8 @@ class QueueProcessor(object):
                     try:
                         self.handle_function(body)
                     except Exception as err:
-                        logging.warning(err, exc_info=True)
-                        logging.warning(body)
+                        logger.warning(err, exc_info=True)
+                        logger.warning(body)
     
     def start(self, async=False):
         """Either start running or start running in a thread."""
@@ -87,7 +89,7 @@ def handle_data(data_str):
     try:
         data = json.loads(text)
     except Exception as err:
-        return logging.warn(err)
+        return logger.warn(err)
     
     # In a transaction.
     with transaction.manager:
@@ -106,7 +108,6 @@ def parse_args(parser_cls=argparse.ArgumentParser):
     parser = parser_cls()
     parser.add_argument('config_file', metavar='CONFIG_FILE', nargs=1)
     parser.add_argument("--input", dest="input_channel", default=INPUT_CHANNEL)
-    parser.add_argument("--level", dest="log_level", default='INFO')
     return parser.parse_args()
 
 def main(args=None):
@@ -116,13 +117,12 @@ def main(args=None):
     if args is None:
         args = parse_args()
     
-    # Setup logging.
-    level = getattr(logging, args.log_level)
-    logging.basicConfig(level=args.log_level)
-    
     # Read the config file.
     config = ConfigParser.SafeConfigParser()
     config.read(args.config_file)
+    
+    # Setup logging.
+    logging.config.fileConfig(args.config_file)
     
     # Bind the model classes.
     engine = create_engine(config.get('app:beliveat', 'sqlalchemy.url'))
