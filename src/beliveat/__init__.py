@@ -22,7 +22,7 @@ from pyramid_simpleauth.tree import UserRoot
 from .hooks import get_redis_client
 from .model import Base
 from .tree import Root
-from .view import not_found_view
+from .views.exceptions import not_found_view
 
 class CustomRequest(AssetGenRequestMixin, Request):
     pass
