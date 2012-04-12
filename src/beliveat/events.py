@@ -12,6 +12,7 @@ from pyramid_twitterauth.model import TwitterAccount
 
 from .hooks import get_redis_client
 from .model import CoverOffer, Hashtag, Tweet, TweetRecord
+from .schema import Hashtag as ValidHashtag
 
 def handle_retweet(data, model_cls=TweetRecord, save=save_to_db):
     """Record a retweet from the Twitter API."""
@@ -52,11 +53,8 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
     tweet.body = text
     tweet.user_twitter_id = data['user']['id']
     for item in ttp.Parser().parse(data['text']).tags:
-        item = item.lower()
-        query = hashtag_cls.query
-        hashtag = query.filter_by(value=item).first()
-        if not hashtag:
-            hashtag = hashtag_cls(value=item)
+        value = ValidHashtag.to_python(item)
+        hashtag = hashtag_cls.get_or_create(value)
         tweet.hashtags.append(hashtag)
         save(tweet)
     

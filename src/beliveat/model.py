@@ -19,6 +19,16 @@ class Hashtag(Base, BaseMixin):
     
     value = Column(Unicode(32), unique=True)
     
+    @classmethod
+    def get_or_create(cls, value):
+        """Get or create a Hashtag for the given value."""
+        
+        hashtag = cls.query.filter_by(value=value).first()
+        if not hashtag:
+            hashtag = cls(value=value)
+        return hashtag
+    
+    
     def __json__(self):
         """Return a dictionary representation of the ``Hashtag`` instance.
           
