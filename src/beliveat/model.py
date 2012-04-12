@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-""""""
+"""SQLAlchemy data model."""
 
 import logging
 logger = logging.getLogger(__name__)
