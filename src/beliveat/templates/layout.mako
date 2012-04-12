@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="..." />
     <meta name="author" content="..." />
+    <%def name="sub_title()"></%def>
     <title>${self.sub_title()} - ${request.registry.settings['site_title']}</title>
     <link rel="stylesheet" type="text/css" href="${request.static_url('beliveat:assets/base.css')}" />
     <link rel="stylesheet" type="text/css" href="${request.static_url('beliveat:assets/style.css')}" />
@@ -13,8 +14,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <%def name="sub_title()">
-    </%def>
   </head>
   <body>
     <div class="navbar navbar-fixed-top">

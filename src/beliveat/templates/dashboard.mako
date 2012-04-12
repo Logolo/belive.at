@@ -1,10 +1,12 @@
 <%inherit file="beliveat:templates/layout.mako" />
 
-<%def name="sub_title()">${_(u'Dashboard')}</%def>
+<%def name="sub_title()">
+  ${_(u'Dashboard')}
+</%def>
 
-<h1>#Syria</h1>
-
-<p>
-  ...
-</p>
-
+<div id="dashboard-view">
+  <h1>#Syria</h1>
+  <p>
+    DASHBOARD GOES HERE
+  </p>
+</div>
