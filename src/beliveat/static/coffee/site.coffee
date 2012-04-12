@@ -115,6 +115,7 @@ $ ->
                 dataType: "json"
                 type: "POST"
                 success: (data) =>
+                    your_assignments.add data
                     @model.set state: @states.success
                 error: (transport) =>
                     data = state: @states.error
@@ -131,7 +132,6 @@ $ ->
             # XXX clear any error / success classes.
             switch state
                 when @states.close
-                    console.log 'close'
                     $target = @$ '#addAssignmentDetails'
                     $target.slideUp()
                 when @states.error
@@ -140,17 +140,13 @@ $ ->
                     console.log errors
                     # XXX set error on each control group
                 when @states.open
-                    console.log 'open'
                     $target = @$ '#addAssignmentDetails'
                     $target.slideDown()
                 when @states.reset
-                    console.log 'reset'
                     $target = @$ 'form'
                     $target[0].reset()
                     @model.set state: @states.close
                 when @states.success
-                    console.log 'success'
-                    alert 'yey!'
                     @model.set state: @states.reset
         
         initialize: ->
