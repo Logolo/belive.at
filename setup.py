@@ -55,7 +55,7 @@ setup(
         'zope.sqlalchemy',
         'SQLAlchemy',
         'Paste',
-        'WebTest'
+        'WebTest',
     ],
     entry_points = """\
         [setuptools.file_finders]
