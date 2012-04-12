@@ -29,10 +29,22 @@ $ ->
     class TweetCollection extends Backbone.Collection
         model: Tweet
     
-    assignments = new AssignmentCollection
+    # On the left hand side of the page, we have two collections.  First there
+    # are your assignments, pinned at the top until you do something with them.  
+    # Then below that are the rated assignments from everyone else.
+    your_assignments = new AssignmentCollection
+    popular_assignments = new AssignmentCollection
+    
+    # Then on the right hand side, we have the assignments you've offered to
+    # cover.  Below that, your tweets flow in until you assign or dismiss them.
     cover_offers = new AssignmentCollection
-    promote_offers = new AssignmentCollection
     own_tweets = new TweetCollection
+    
+    # Below that, we have the assignments that you've offered to promote, which
+    # each individually contain a collection of tweets coming in from other
+    # people covering the assignments.
+    promote_offers = new AssignmentCollection
+    
     
     ### Widgets.
     ###
@@ -218,18 +230,21 @@ $ ->
                 el: $create_assignment_el
                 model: new Backbone.Model
                     hashtag: @hashtag
-            # Assignments listing.
-            $assignments_el = @$ "#sortedAssignmentsBlock"
-            @assignments_listing = new AssignmentsListing
-                collection: assignments
-                el: $assignments_el
-            # Cover offers listing.
+            # Assignments listings.
+            $your_assignments_el = @$ "#yourAssignmentsBlock ul"
+            $popular_assignments_el = @$ "#sortedAssignmentsBlock ul"
+            @your_assignments_listing = new AssignmentsListing
+                collection: your_assignments
+                el: $your_assignments_el
+            @popular_assignments_listing = new AssignmentsListing
+                collection: popular_assignments
+                el: $popular_assignments_el
+            # Cover offers and own tweets listings.
             $cover_offers_el = @$ ".pledgedCoverBlock .pledgedCoverWrapper"
+            $own_tweets_el = @$ ".pledgedCoverBlock .tweetCoverWrapper"
             @cover_offers_listing = new CoverOffersListing
                 collection: cover_offers
                 el: $cover_offers_el
-            # Coverage tweets listing.
-            $own_tweets_el = @$ ".pledgedCoverBlock .tweetCoverWrapper"
             @own_tweets_listing = new CoverageTweetsListing
                 collection: own_tweets
                 el: $own_tweets_el
