@@ -171,28 +171,28 @@ $ ->
     class AssignmentsListing extends BaseListing
         add: (instance) ->
             widget = new AssignmentWidget model: instance
-            @$el.append widget.render().$el.html()
+            @$el.prepend widget.$el.html()
         
     
     # View for the listing of cover offers.
     class CoverOffersListing extends BaseListing
         add: (instance) ->
             widget = new CoverOfferWidget model: instance
-            @$el.append widget.render().$el.html()
+            @$el.prepend widget.$el.html()
         
     
     # View for the listing of cover offers.
     class CoverageTweetsListing extends BaseListing
         add: (instance) ->
             widget = new CoverTweetWidget model: instance
-            @$el.append widget.$el.html()
+            @$el.prepend widget.$el.html()
         
     
     # View for the listing of promote offers.
     class PromoteOffersListing extends BaseListing
         add: (instance) ->
             widget = new PromoteOfferWidget model: instance
-            @$el.append widget.render().$el.html()
+            @$el.prepend widget.$el.html()
         
     
     
