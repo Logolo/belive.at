@@ -149,12 +149,12 @@ $ ->
                 collection: assignments
                 el: $assignments_el
             # Cover offers listing.
-            $cover_offers_el = @$ "#pledgedCoverageBlock .pledgedCoverWrapper"
+            $cover_offers_el = @$ ".pledgedCoverBlock .pledgedCoverWrapper"
             @cover_offers_listing = new CoverOffersListing
                 collection: cover_offers
                 el: $cover_offers_el
             # Coverage tweets listing.
-            $own_tweets_el = @$ "#pledgedCoverageBlock .tweetCoverWrapper"
+            $own_tweets_el = @$ ".pledgedCoverBlock .tweetCoverWrapper"
             @own_tweets_listing = new CoverageTweetsListing
                 collection: own_tweets
                 el: $own_tweets_el
