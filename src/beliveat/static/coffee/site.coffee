@@ -60,27 +60,27 @@ $ ->
     # View for a "normal" assignment listing that's available to promote or cover.
     class AssignmentWidget extends BaseWidget
         # events: 
-        render: -> @$el.text 'AssignmentWidget'
-    
-    # View for an assignment that's been selected to promote.
-    class PromoteOfferWidget extends BaseWidget
-        # events: 
-        render: -> @$el.text 'PromoteOfferWidget'
+        render: => @$el.html beliveat.templates.assignment @model.toJSON()
     
     # View for an assignment that's been selected to cover.
     class CoverOfferWidget extends BaseWidget
         # events: 
-        render: -> @$el.text 'CoverOfferWidget'
-    
-    # View for a tweet that's a candidate to promote.
-    class PromoteTweetWidget extends BaseWidget
-        # events: 
-        render: -> @$el.text 'PromoteTweetWidget'
+        render: => @$el.html beliveat.templates.cover_offer @model.toJSON()
     
     # View for a tweet that's a candidate to cover an assignment with.
     class CoverTweetWidget extends BaseWidget
         # events: 
-        render: -> @$el.text 'CoverTweetWidget'
+        render: => @$el.html beliveat.templates.cover_tweet @model.toJSON()
+    
+    # View for an assignment that's been selected to promote.
+    class PromoteOfferWidget extends BaseWidget
+        # events: 
+        render: => @$el.html beliveat.templates.promote_offer @model.toJSON()
+    
+    # View for a tweet that's a candidate to promote.
+    class PromoteTweetWidget extends BaseWidget
+        # events: 
+        render: => @$el.html beliveat.templates.promote_tweet @model.toJSON()
     
     # View for the create assignment UI.
     class CreateAssignmentWidget extends Backbone.View
