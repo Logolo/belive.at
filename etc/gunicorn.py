@@ -11,7 +11,7 @@ def on_starting(server):
 def post_fork(server, worker):
     from psycogreen.gevent import psyco_gevent
     psyco_gevent.make_psycopg_green()
-    worker.log.info("Made psycopg2 Green")
+    worker.log.info("Patched psycopg2 to work with gevent.")
 
 def when_ready(server):
     def monitor():
