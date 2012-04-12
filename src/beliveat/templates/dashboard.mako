@@ -5,7 +5,7 @@
 </%def>
 
 <%def name="assignment()">
-  <div class="assignment">
+  <li class="assignment">
     <div class="promoteBlock">
       <span><img src="PATH_TO_PROMOTE_BUTTON" /></span>
       <span class="pledges">42</span>
@@ -21,7 +21,7 @@
       <span class="pledges">23</span>
       <span class="pledgesLabel">Pledges</span>
     </div>
-  </div>
+  </li>
 </%def>
 
 <%def name="tweetCover()">
@@ -105,10 +105,18 @@
             </fieldset>
           </form>
         </div>  
+        <div id="yourAssignmentsBlock">
+          <h4>Your Assignments</h4>
+          <ul>
+            ${self.assignment()}
+          </ul>
+        </div>
         <div id="sortedAssignmentsBlock">
-          ${self.assignment()}
-          ${self.assignment()}
-          ${self.assignment()}  
+          <h4>Popular Assignments</h4>
+          <ul>
+            ${self.assignment()}
+            ${self.assignment()}  
+          </ul>
         </div>
       </div>
       <div id="coverageColumn" class="span6">
