@@ -10,6 +10,13 @@ body {
   clear: both;
 }
 
+#dashboard-view h3.columnTitle {
+  width: 100%;
+  background-color: #eee;
+  text-transform: uppercase;
+  margin: 10px 0;
+}
+
 div#addAssignmentBlock {
 }
 
@@ -27,7 +34,7 @@ div#addAssignmentBlock {
 
 #yourAssignmentsBlock li.assignment {
   background-color: #fff;
-  border: 1px solid #eee;
+  border: 1px solid #ccc;
 }
 
 div.promoteBlock {
@@ -67,7 +74,7 @@ div.coverBlock {
   padding-bottom: 10px;
 }
 
-.pledgedCoverWrapper {
+.pledgedCoverWrapper, .pledgedPromote {
   background-color: #fff;
   border: 1px solid #ccc;
   padding: 5px;
@@ -105,17 +112,19 @@ div.coverBlock {
   vertical-align: top;
 }
 
-.tweetCover iframe {
+.tweetCover iframe, .tweetPromote iframe {
   display: block;
   float: right;
-  width: 50%;
+  width: 40%;
   padding: 15px 0 10px 0;
 }
+
+.tweetPromote iframe {float: left;}
 
 .tweetCover .tweetText {
   display: block;
   float: left;
-  width: 50%;
+  width: 60%;
 }
 
 .tweetButtons {
@@ -126,7 +135,7 @@ div.coverBlock {
   display: inline-block;
 }
 
-.tweetCoverWrapper {
+.tweetCoverWrapper, .tweetPromoteWrapper {
   width: 97%;
   margin: -5px auto 10px auto;
   padding: 5px;
@@ -134,3 +143,9 @@ div.coverBlock {
   border-radius: 5px;
   z-index: -100;
 }
+
+.pledgedPromoteIcon, .pledgedPromoteTitle {
+  display: block;
+  float: left;
+}
+

@@ -69,6 +69,7 @@
         <button class="buttonHide">Hide</button>
       </div>
     </div>
+    <div class="clear"></div>
   </div>
 </%def>
 
@@ -93,7 +94,11 @@
     <div class="pledgedPromoteBody">
       <div class="pledgedPromoteIcon"><img src="/static/gfx/promote-icon.png" /></div>
       <div class="pledgedPromoteTitle">"Get footage of nuclear waste train next to church."</div>
+      <div class="pledgedPromoteClose">
+         <button class="btn-mini buttonPromoteClose">x</button>
+      </div>
     </div>
+    <div class="clear"></div>
     <div class="pledgedPromotestatus">You fulfilled your pledge to retweet reports on this.</div>
   </div>
 </%def>
@@ -104,7 +109,7 @@
   <div class="container-fluid">
     <div class="row-fluid">
       <div id="assignmentColumn" class="span6">
-        <h3>Assignments</h3>
+        <h3 class="columnTitle">Assignments</h3>
         <div id="addAssignmentBlock">
           <form action="${request.route_url('assignments', traverse=('create',))}"
                 method="post">
@@ -152,7 +157,7 @@
         </div>
       </div>
       <div id="coverageColumn" class="span6">
-        <h3>Coverage</h3>
+        <h3 class="columnTitle">Coverage</h3>
         <div class="pledgedCoverBlock">
           <div class="pledgedCoverWrapper">
             <div class="pledgedCover">
