@@ -4,6 +4,69 @@
   ${_(u'Dashboard')}
 </%def>
 
+<%def name="assignment()">
+  <div class="assignment">
+    <div class="promoteBlock">
+      <span><img src="PATH_TO_PROMOTE_BUTTON" /></span>
+      <span class="pledges">42</span>
+      <span class="pledgesLabel">Pledges</span>
+    </div>
+    <div class="assignmentContent">
+      <h3>Cover police behaviour at Occupy London next Friday.</h3>
+      <p>A bunch of students will be congregating outside St. Paul's cathedral to show support. We want to make sure that there is peace and order...</p>
+      <span class="assignmentAuthor"><img src="" />Submitted by TheOccupyGuy.</span>
+    </div>
+    <div class="coverBlock">
+      <span><img src="PATH_TO_COVER_BUTTON" /></span>
+      <span class="pledges">23</span>
+      <span class="pledgesLabel">Pledges</span>
+    </div>
+  </div>
+</%def>
+
+<%def name="tweetCover()">
+  <div class="tweetCover">
+    <div class="tweetText">
+      <h3>"TWEET_TITLE"</h3>
+      <p>TWEET_BODY</p>
+      <div class="tweetButtons">
+        <div class="btn-group buttonLink">
+          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            Link to Assignment
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <!-- dropdown menu links - iterate through COVER_PLEDGES -->
+            <li><a href="#">Cover Pledge #1</li>
+            <li><a href="#">Cover Pledge #2</li>
+            <li><a href="#">Cover Pledge #3</li>
+          </ul>
+        </div>
+        <button class="buttonHide">Hide</button>
+      </div>
+    </div>
+    <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/${VIDEO_ID}" frameborder="0">
+    </iframe>
+  </div>
+</%def>
+
+<%def name="tweetPledge()">
+  <div class="tweetPledge">
+    <iframe class="youtube-player" type="text/html" src="http://www.youtube.com/embed/${VIDEO_ID}" frameborder="0"> <!-- default sizes = width="640" height="385" -->
+    </iframe>
+    <div class="tweetText">
+      <h3>${TWEET_TITLE}</h3><img src="${TWEET_AUTHOR_PIC}" />
+      <p>${TWEET_BODY}</p>
+      <div class="tweetButtons">
+        <button class="buttonFlag"><img src="PATH_TO_FLAG_IMAGE" />Flag as Inappropriate</button>
+        <button class="buttonRetweet">Retweet</button>
+        <button class="buttonHide">Hide</button>
+      </div>
+    </div>
+  </div>
+</%def>
+
+
 <div id="dashboard-view">
   <h1>#Syria</h1>
   <div class="container-fluid">
@@ -12,20 +75,30 @@
         <h3>Assignments</h3>
         <div id="addAssignmentBlock">
           <form class="navbar-search pull-left" action="">
-            <div id="addAssignment">
-              <input type="text" placeholder="+ Add a new assignment">
-            </div>
-            <div id="addAssignmentDetails">
-              <input type="textarea"></input>
-              <button></button>
-            </div>
-          </form>
-          <div class="addAssignmentDetails"></div>
+            <fieldset>
+              <div id="addAssignment" class="control-group">
+                <div class="controls">
+                  <input type="text" id="formAddAssignment" placeholder="+ Add a new assignment" />
+                </div>
+              </div>
+              <div id="addAssignmentDetails" class="control-group">
+                <label for="formAddAssignmentDetail" class="control-label">
+                  Please give any relevant details, context, location, time, etc.
+                </label>
+                <div class="controls">
+                  <textarea rows="5"></textarea>
+                </div>
+              </div>
+              <div id="addAssignmentSubmit" class="form-actions">
+                <input type="submit" class="btn" value="Submit" />
+              </div>
+            </fieldset>
+          </form>          <div class="addAssignmentDetails"></div>
         </div>  
         <div id="sortedAssignmentsBlock">
-          <div class="assignment"></div>
-          <div class="assignment"></div>
-          <div class="assignment"></div>        
+          ${self.assignment()}
+          ${self.assignment()}
+          ${self.assignment()}  
         </div>
       </div>
       <div id="coverageColumn" class="span6">
@@ -59,6 +132,3 @@
     </div>
   </div>
 </div>
-
-
-
