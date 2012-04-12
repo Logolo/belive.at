@@ -2,7 +2,11 @@
 
 """"""
 
+import logging
+logger = logging.getLogger(__name__)
+
 import json
+import datetime
 
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Unicode, UnicodeText
@@ -72,19 +76,41 @@ class Assignment(Base, BaseMixin):
     
     @property
     def rank(self):
-        """"""
+        """Rank by the number of promote and cover offers."""
         
+        logger.warn('XXX how do we retire offers?')
+        
+        # Start with a rank of zero.
         n = 0
         
-        # for each promote offer within two weeks
-            # query = Session.query(PromoteOffer.c)
-            # score = 1/max(diff in seconds, 1) * 60*24
-            # n += score
+        now = datetime.datetime.utcnow()
+        one_week_ago = now - datetime.timedelta(weeks=1)
         
-        # total cover offers
-            # query = Session.query(ReportOffer.c)
-            # score = 3/max(diff in seconds, 1) * 60*24
-            # n += score
+        # For each promote offer within the last week.
+        query = Session.query(PromoteOffer.created)
+        query = query.filter(PromoteOffer.assignment==self)
+        query = query.filter(PromoteOffer.created>one_week_ago)
+        for item in query.all():
+            created_date = item[0]
+            delta = now - created_date
+            # Make sure the diff is at least one second (n.b.:
+            # ``timedelta.total_seconds`` requires Python>=2.7)
+            seconds = max(delta.total_seconds(), 1)
+            # Half life of 1 day.
+            score = 1440 / seconds
+            n += score
+        
+        # For each cover offer within the last week.
+        query = Session.query(CoverOffer.created)
+        query = query.filter(CoverOffer.assignment==self)
+        query = query.filter(CoverOffer.created>one_week_ago)
+        for item in query.all():
+            created_date = item[0]
+            delta = now - created_date
+            seconds = max(delta.total_seconds(), 1)
+            # Three times as important as promote offers.
+            score = 3 * 1440 / seconds
+            n += score
         
         return n
     
