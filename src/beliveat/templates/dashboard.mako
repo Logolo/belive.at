@@ -31,8 +31,11 @@
 
 <%def name="tweetCover()">
   <div class="tweetCover">
-    <iframe class="youtube-player" type="text/html" src="http://www.youtube.com/embed/VIDEO_ID" frameborder="0">
-    </iframe>
+    <div class="tweetCoverLink">
+      <a src="#YouTubeLink">
+        <img src="http://img.youtube.com/vi/qVaW3rfCwq8/0.jpg" />
+      </a>
+    </div>
     <div class="tweetText">
       <h3>"YouTube video title here"</h3>
       <p>Tweet from the person promoting the video is here. Blah blah blah blah. Blah!</p>
@@ -58,8 +61,11 @@
 
 <%def name="tweetPromote()">
   <div class="tweetPromote">
-    <iframe class="youtube-player" type="text/html" src="http://www.youtube.com/embed/VIDEO_ID" frameborder="0"> <!-- default sizes = width="640" height="385" -->
-    </iframe>
+    <div class="tweetPromoteLink">
+      <a src="#YouTubeLink">
+        <img src="http://img.youtube.com/vi/qVaW3rfCwq8/0.jpg" />
+      </a>
+    </div>    
     <div class="tweetText">
       <h3>"YouTube video title here"</h3><img src="/static/gfx/defaultUser.png" />
       <p>Tweet from the person promoting the video is here. Blah blah blah blah. Blah!</p>
@@ -160,12 +166,8 @@
         <h3 class="columnTitle">Coverage</h3>
         <div class="pledgedCoverBlock">
           <div class="pledgedCoverWrapper">
-            <div class="pledgedCover">
               ${self.pledgedCover()}
-            </div>
-            <div class="pledgedCover">
               ${self.pledgedCover()}
-            </div>
           </div>
           <div class="tweetCoverWrapper">
             ${self.tweetCover()}

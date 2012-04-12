@@ -112,14 +112,19 @@ div.coverBlock {
   vertical-align: top;
 }
 
-.tweetCover iframe, .tweetPromote iframe {
+.tweetCoverLink, .tweetPromoteLink {
   display: block;
   float: right;
   width: 40%;
   padding: 15px 0 10px 0;
 }
 
-.tweetPromote iframe {float: left;}
+.tweetCoverLink img, .tweetPromoteLink img {
+  width: 100%;
+  height: auto;
+}
+
+.tweetPromoteLink {float: left;}
 
 .tweetCover .tweetText {
   display: block;
