@@ -29,10 +29,22 @@ $ ->
     class TweetCollection extends Backbone.Collection
         model: Tweet
     
-    assignments = new AssignmentCollection
+    # On the left hand side of the page, we have two collections.  First there
+    # are your assignments, pinned at the top until you do something with them.  
+    # Then below that are the rated assignments from everyone else.
+    your_assignments = new AssignmentCollection
+    popular_assignments = new AssignmentCollection
+    
+    # Then on the right hand side, we have the assignments you've offered to
+    # cover.  Below that, your tweets flow in until you assign or dismiss them.
     cover_offers = new AssignmentCollection
-    promote_offers = new AssignmentCollection
     own_tweets = new TweetCollection
+    
+    # Below that, we have the assignments that you've offered to promote, which
+    # each individually contain a collection of tweets coming in from other
+    # people covering the assignments.
+    promote_offers = new AssignmentCollection
+    
     
     ### Widgets.
     ###
@@ -48,27 +60,27 @@ $ ->
     # View for a "normal" assignment listing that's available to promote or cover.
     class AssignmentWidget extends BaseWidget
         # events: 
-        render: -> @$el.text 'AssignmentWidget'
-    
-    # View for an assignment that's been selected to promote.
-    class PromoteOfferWidget extends BaseWidget
-        # events: 
-        render: -> @$el.text 'PromoteOfferWidget'
+        render: => @$el.html beliveat.templates.assignment @model.toJSON()
     
     # View for an assignment that's been selected to cover.
     class CoverOfferWidget extends BaseWidget
         # events: 
-        render: -> @$el.text 'CoverOfferWidget'
-    
-    # View for a tweet that's a candidate to promote.
-    class PromoteTweetWidget extends BaseWidget
-        # events: 
-        render: -> @$el.text 'PromoteTweetWidget'
+        render: => @$el.html beliveat.templates.cover_offer @model.toJSON()
     
     # View for a tweet that's a candidate to cover an assignment with.
     class CoverTweetWidget extends BaseWidget
         # events: 
-        render: -> @$el.text 'CoverTweetWidget'
+        render: => @$el.html beliveat.templates.cover_tweet @model.toJSON()
+    
+    # View for an assignment that's been selected to promote.
+    class PromoteOfferWidget extends BaseWidget
+        # events: 
+        render: => @$el.html beliveat.templates.promote_offer @model.toJSON()
+    
+    # View for a tweet that's a candidate to promote.
+    class PromoteTweetWidget extends BaseWidget
+        # events: 
+        render: => @$el.html beliveat.templates.promote_tweet @model.toJSON()
     
     # View for the create assignment UI.
     class CreateAssignmentWidget extends Backbone.View
@@ -103,6 +115,7 @@ $ ->
                 dataType: "json"
                 type: "POST"
                 success: (data) =>
+                    your_assignments.add data
                     @model.set state: @states.success
                 error: (transport) =>
                     data = state: @states.error
@@ -119,7 +132,6 @@ $ ->
             # XXX clear any error / success classes.
             switch state
                 when @states.close
-                    console.log 'close'
                     $target = @$ '#addAssignmentDetails'
                     $target.slideUp()
                 when @states.error
@@ -128,21 +140,19 @@ $ ->
                     console.log errors
                     # XXX set error on each control group
                 when @states.open
-                    console.log 'open'
                     $target = @$ '#addAssignmentDetails'
                     $target.slideDown()
                 when @states.reset
-                    console.log 'reset'
                     $target = @$ 'form'
                     $target[0].reset()
                     @model.set state: @states.close
                 when @states.success
-                    console.log 'success'
-                    alert 'yey!'
                     @model.set state: @states.reset
         
         initialize: ->
             # Start closed and render when anything changes.
+            $target = @$ '#addAssignmentDetails'
+            $target.hide()
             @model.set state: @states.close
             @model.bind 'change', @render
             @render()
@@ -163,28 +173,28 @@ $ ->
     class AssignmentsListing extends BaseListing
         add: (instance) ->
             widget = new AssignmentWidget model: instance
-            @$el.append widget.render().$el.html()
+            @$el.prepend widget.$el.html()
         
     
     # View for the listing of cover offers.
     class CoverOffersListing extends BaseListing
         add: (instance) ->
             widget = new CoverOfferWidget model: instance
-            @$el.append widget.render().$el.html()
+            @$el.prepend widget.$el.html()
         
     
     # View for the listing of cover offers.
     class CoverageTweetsListing extends BaseListing
         add: (instance) ->
             widget = new CoverTweetWidget model: instance
-            @$el.append widget.$el.html()
+            @$el.prepend widget.$el.html()
         
     
     # View for the listing of promote offers.
     class PromoteOffersListing extends BaseListing
         add: (instance) ->
             widget = new PromoteOfferWidget model: instance
-            @$el.append widget.render().$el.html()
+            @$el.prepend widget.$el.html()
         
     
     
@@ -218,18 +228,21 @@ $ ->
                 el: $create_assignment_el
                 model: new Backbone.Model
                     hashtag: @hashtag
-            # Assignments listing.
-            $assignments_el = @$ "#sortedAssignmentsBlock"
-            @assignments_listing = new AssignmentsListing
-                collection: assignments
-                el: $assignments_el
-            # Cover offers listing.
+            # Assignments listings.
+            $your_assignments_el = @$ "#yourAssignmentsBlock ul"
+            $popular_assignments_el = @$ "#sortedAssignmentsBlock ul"
+            @your_assignments_listing = new AssignmentsListing
+                collection: your_assignments
+                el: $your_assignments_el
+            @popular_assignments_listing = new AssignmentsListing
+                collection: popular_assignments
+                el: $popular_assignments_el
+            # Cover offers and own tweets listings.
             $cover_offers_el = @$ ".pledgedCoverBlock .pledgedCoverWrapper"
+            $own_tweets_el = @$ ".pledgedCoverBlock .tweetCoverWrapper"
             @cover_offers_listing = new CoverOffersListing
                 collection: cover_offers
                 el: $cover_offers_el
-            # Coverage tweets listing.
-            $own_tweets_el = @$ ".pledgedCoverBlock .tweetCoverWrapper"
             @own_tweets_listing = new CoverageTweetsListing
                 collection: own_tweets
                 el: $own_tweets_el
