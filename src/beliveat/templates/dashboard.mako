@@ -78,10 +78,11 @@
                 method="post">
             <fieldset>
               <div class="control-group">
-                <div class="controls">
-                  <input id="addAssignmentInput" type="text" name="title"
+                <div id="addAssignmentTitle" class="controls">
+                  <input type="text" name="title"
                       placeholder="+ Add a new assignment"
                   />
+                  <span class="help-inline"></span>
                 </div>
               </div>
               <div id="addAssignmentDetails">
@@ -89,8 +90,9 @@
                   <label for="formAddAssignmentDetail" class="control-label">
                     Please give any relevant details, context, location, time, etc.
                   </label>
-                  <div class="controls">
+                  <div id="addAssignmentDescription" class="controls">
                     <textarea name="description" rows="5"></textarea>
+                    <span class="help-inline"></span>
                   </div>
                 </div>
                 <div class="form-actions">
