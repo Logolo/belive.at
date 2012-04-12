@@ -45,7 +45,7 @@ generate:
     
 
 - gfx/*:
-    source: ../src/beliveat/gfx/*
+    source: ../src/beliveat/static/gfx/*
     type: binary
 
 - base.css:
