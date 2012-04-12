@@ -5,3 +5,61 @@ body {
 .sidebar-nav {
   padding: 9px 0;
 }
+
+div#addAssignmentBlock {
+}
+
+.assignment {
+  background-color: #eee;
+  margin: 0 0 20px 0;
+}
+
+.promoteBlock {
+  display: inline-block;
+}
+
+.assignmentContent {
+  display: inline-block;
+}
+
+.coverBlock {
+  display: inline-block;
+}
+
+.pledgedCoverWrapper {
+  background-color: #fff;
+  border: 2px solid #ccc;
+  padding: 5px;
+  z-index: 100;
+}
+
+.tweetCover {
+  vertical-align: top;
+}
+
+.tweetCover iframe {
+  display: inline-block;
+  width: 50%;
+}
+
+.tweetCover .tweetText {
+  display: inline-block;
+  width: 50%;
+}
+
+.tweetButtons {
+  display: block;
+}
+
+.buttonLink {
+  display: inline-block;
+}
+
+.tweetCoverWrapper {
+  width: 97%;
+  margin: -2px auto 10px auto;
+  padding: 5px;
+  background-color: #eee;
+  border-radius: 5px;
+  z-index: -100;
+}

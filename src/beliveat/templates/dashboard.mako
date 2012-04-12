@@ -7,17 +7,17 @@
 <%def name="assignment()">
   <li class="assignment">
     <div class="promoteBlock">
-      <span><img src="PATH_TO_PROMOTE_BUTTON" /></span>
+      <span><img src="/static/gfx/promote.png" /></span>
       <span class="pledges">42</span>
       <span class="pledgesLabel">Pledges</span>
     </div>
     <div class="assignmentContent">
       <h3>Cover police behaviour at Occupy London next Friday.</h3>
       <p>A bunch of students will be congregating outside St. Paul's cathedral to show support. We want to make sure that there is peace and order...</p>
-      <span class="assignmentAuthor"><img src="" />Submitted by TheOccupyGuy.</span>
+      <span class="assignmentAuthor"><img src="/static/gfx/defaultUser.png" />Submitted by TheOccupyGuy.</span>
     </div>
     <div class="coverBlock">
-      <span><img src="PATH_TO_COVER_BUTTON" /></span>
+      <span><img src="/static/gfx/cover.png" /></span>
       <span class="pledges">23</span>
       <span class="pledgesLabel">Pledges</span>
     </div>
@@ -26,9 +26,11 @@
 
 <%def name="tweetCover()">
   <div class="tweetCover">
+    <iframe class="youtube-player" type="text/html" src="http://www.youtube.com/embed/VIDEO_ID" frameborder="0">
+    </iframe>
     <div class="tweetText">
-      <h3>"TWEET_TITLE"</h3>
-      <p>TWEET_BODY</p>
+      <h3>"YouTube video title here"</h3>
+      <p>Tweet from the person promoting the video is here. Blah blah blah blah. Blah!</p>
       <div class="tweetButtons">
         <div class="btn-group buttonLink">
           <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
@@ -37,32 +39,53 @@
           </a>
           <ul class="dropdown-menu">
             <!-- dropdown menu links - iterate through COVER_PLEDGES -->
-            <li><a href="#">Cover Pledge #1</li>
-            <li><a href="#">Cover Pledge #2</li>
-            <li><a href="#">Cover Pledge #3</li>
+            <li><a href="#">Cover Pledge #1</a></li>
+            <li><a href="#">Cover Pledge #2</a></li>
+            <li><a href="#">Cover Pledge #3</a></li>
           </ul>
         </div>
         <button class="buttonHide">Hide</button>
       </div>
     </div>
-    <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/${VIDEO_ID}" frameborder="0">
-    </iframe>
   </div>
 </%def>
 
-<%def name="tweetPledge()">
-  <div class="tweetPledge">
-    <iframe class="youtube-player" type="text/html" src="http://www.youtube.com/embed/${VIDEO_ID}" frameborder="0"> <!-- default sizes = width="640" height="385" -->
+<%def name="tweetPromote()">
+  <div class="tweetPromote">
+    <iframe class="youtube-player" type="text/html" src="http://www.youtube.com/embed/VIDEO_ID" frameborder="0"> <!-- default sizes = width="640" height="385" -->
     </iframe>
     <div class="tweetText">
-      <h3>${TWEET_TITLE}</h3><img src="${TWEET_AUTHOR_PIC}" />
-      <p>${TWEET_BODY}</p>
+      <h3>"YouTube video title here"</h3><img src="/static/gfx/defaultUser.png" />
+      <p>Tweet from the person promoting the video is here. Blah blah blah blah. Blah!</p>
       <div class="tweetButtons">
-        <button class="buttonFlag"><img src="PATH_TO_FLAG_IMAGE" />Flag as Inappropriate</button>
+        <button class="buttonFlag"><img src="/static/gfx/flag.png" />Flag as Inappropriate</button>
         <button class="buttonRetweet">Retweet</button>
         <button class="buttonHide">Hide</button>
       </div>
     </div>
+  </div>
+</%def>
+
+<%def name="pledgedCover()">
+  <div class="pledgedCover">
+    <div class="pledgedCoverBody">
+      <div class="pledgedCoverTitle">"Film the awesome blah, blah blah."</div>
+      <div class="pledgedCoverIcon">
+        <img src="/static/gfx/cover-icon.png" />
+        <i class="icon-remove-circle"></i>
+      </div>
+    </div>
+    <div class="pledgedCoverStatus">You pledged to report on this.</div>
+  </div>
+</%def>
+
+<%def name="pledgedPromote()">
+  <div class="pledgedPromote">
+    <div class="pledgedPromoteBody">
+      <div class="pledgedPromoteIcon"><img src="/static/gfx/promote-icon.png" /></div>
+      <div class="pledgedPromoteTitle">"Get footage of nuclear waste train next to church."</div>
+    </div>
+    <div class="pledgedPromotestatus">You fulfilled your pledge to retweet reports on this.</div>
   </div>
 </%def>
 
@@ -123,25 +146,29 @@
         <h3>Coverage</h3>
         <div class="pledgedCoverBlock">
           <div class="pledgedCoverWrapper">
-            <div class="pledgedCover"></div>
-            <div class="pledgedCover"></div>
+            <div class="pledgedCover">
+              ${self.pledgedCover()}
+            </div>
+            <div class="pledgedCover">
+              ${self.pledgedCover()}
+            </div>
           </div>
           <div class="tweetCoverWrapper">
-            <div class="tweetCover"></div>
-            <div class="tweetCover"></div>
+            ${self.tweetCover()}
+            ${self.tweetCover()}
           </div>
         </div>
         <div class="pledgedPromoteBlock">
           <div class="pledgedPromoteWrapper">
-            <div class="pledgedPromote"></div>
+            ${pledgedPromote()}
             <div class="tweetPromoteWrapper">
-              <div class="tweetPromote"></div>
-              <div class="tweetPromote"></div>
-              <div class="tweetPromote"></div>
+              ${self.tweetPromote()}
+              ${self.tweetPromote()}
+              ${self.tweetPromote()}
             </div>
           </div>
           <div class="pledgedPromoteWrapper">
-            <div class="pledgedPromote"></div>
+            ${pledgedPromote()}
             <div class="tweetPromoteWrapper">
             </div>
           </div>
