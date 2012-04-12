@@ -124,6 +124,12 @@ def main(args=None):
     # Setup logging.
     logging.config.fileConfig(args.config_file)
     
+    # Patch sockets, threading and the db driver.
+    from gevent import monkey
+    monkey.patch_all()
+    import gevent_psycopg2
+    gevent_psycopg2.monkey_patch()
+    
     # Bind the model classes.
     engine = create_engine(config.get('app:beliveat', 'sqlalchemy.url'))
     bind_engine(engine)

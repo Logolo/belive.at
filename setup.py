@@ -32,6 +32,7 @@ setup(
         'gunicorn',
         'mock',
         'nose',
+        'psycogreen',
         'psycopg2', 
         'pyDNS', 
         'pyramid', 

@@ -256,6 +256,10 @@ def main(args=None):
     # Setup logging.
     logging.config.fileConfig(args.config_file)
     
+    # Patch sockets and threading.
+    from gevent import monkey
+    monkey.patch_all()
+    
     # Instantiate a ``Manager`` with a redis client and oauth handler and
     # start the manager running.
     client = get_redis_client()
