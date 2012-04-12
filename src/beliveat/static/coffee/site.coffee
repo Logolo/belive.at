@@ -72,8 +72,81 @@ $ ->
     
     # View for the create assignment UI.
     class CreateAssignmentWidget extends Backbone.View
-        # events: 
-        render: -> # pass
+        states:
+            'close':        'CLOSE'
+            'error':        'ERROR'
+            'open':         'OPEN'
+            'reset':        'RESET'
+            'success':      'SUCCESS'
+        events:
+            'click .close': 'handle_close'
+            'focus form':   'handle_focus'
+            'submit form':  'handle_submit'
+        
+        handle_close: => 
+            @model.set state: @states.close
+            false
+        
+        handle_focus: =>
+            @model.set state: @states.open
+        
+        handle_submit: =>
+            # Get the form data.
+            $form = @$ 'form'
+            url = $form.attr 'action'
+            data = hashtag: @model.get 'hashtag'
+            data[item.name] = item.value for item in $form.serializeArray()
+            # POST to the server to subscribe.
+            $.ajax
+                url: url
+                data: data
+                dataType: "json"
+                type: "POST"
+                success: (data) =>
+                    @model.set state: @states.success
+                error: (transport) =>
+                    data = state: @states.error
+                    if transport.status is 400
+                        data['errors'] = JSON.parse transport.responseText
+                    @model.set data
+            # Show the progress indicator.
+            @model.set state: @states.progress
+            # Squish the original submit event.
+            false
+        
+        render: => 
+            state = @model.get 'state'
+            # XXX clear any error / success classes.
+            switch state
+                when @states.close
+                    console.log 'close'
+                    $target = @$ '#addAssignmentDetails'
+                    $target.slideUp()
+                when @states.error
+                    console.log 'error'
+                    errors = @model.get 'errors'
+                    console.log errors
+                    # XXX set error on each control group
+                when @states.open
+                    console.log 'open'
+                    $target = @$ '#addAssignmentDetails'
+                    $target.slideDown()
+                when @states.reset
+                    console.log 'reset'
+                    $target = @$ 'form'
+                    $target[0].reset()
+                    @model.set state: @states.close
+                when @states.success
+                    console.log 'success'
+                    alert 'yey!'
+                    @model.set state: @states.reset
+        
+        initialize: ->
+            # Start closed and render when anything changes.
+            @model.set state: @states.close
+            @model.bind 'change', @render
+            @render()
+        
     
     
     ### Listings.
@@ -132,17 +205,19 @@ $ ->
         
         # Handle the arrival of a tweet that's been verified by its author as
         # coverage of an assignment this use has offered to promote.
-        handle_coverage: (data) ->
-            console.log 'DashboardView.handle_coverage'
+        handle_tweet_to_promote: (data) ->
+            console.log 'DashboardView.handle_tweet_to_promote'
             console.log data
             # XXX broadcast an event using the assignment id.
         
         
         initialize: ->
-            # Create assignment widget.
+            # Create assignment widget, passing through the hashtag.
             $create_assignment_el = @$ "#addAssignmentBlock"
             @create_assignment_widget = new CreateAssignmentWidget
                 el: $create_assignment_el
+                model: new Backbone.Model
+                    hashtag: @hashtag
             # Assignments listing.
             $assignments_el = @$ "#sortedAssignmentsBlock"
             @assignments_listing = new AssignmentsListing
@@ -165,7 +240,7 @@ $ ->
                 el: $promote_offers_el
             # Bind to socket notifications.
             dispatcher.on "own_tweet:#{@hashtag}", @handle_own_tweet
-            dispatcher.on "coverage:#{@hashtag}", @handle_coverage
+            dispatcher.on "tweet_to_promote:#{@hashtag}", @handle_tweet_to_promote
         
     
     # XXX temporary init code.

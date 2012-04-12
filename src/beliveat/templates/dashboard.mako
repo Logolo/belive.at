@@ -96,7 +96,10 @@
                   </div>
                 </div>
                 <div class="form-actions">
-                  <input id="addAssignmentSubmit" type="submit" class="btn" value="Submit" />
+                  <input id="addAssignmentSubmit" type="submit" class="btn btn-primary"
+                      value="Submit"
+                  />
+                  <a class="btn" href="#close">Close</a>
                 </div>
               </div>
             </fieldset>
