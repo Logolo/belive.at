@@ -74,26 +74,31 @@
       <div id="assignmentColumn" class="span6">
         <h3>Assignments</h3>
         <div id="addAssignmentBlock">
-          <form class="navbar-search pull-left" action="">
+          <form action="${request.route_url('assignments', traverse=('create',))}"
+                method="post">
             <fieldset>
-              <div id="addAssignment" class="control-group">
+              <div class="control-group">
                 <div class="controls">
-                  <input type="text" id="formAddAssignment" placeholder="+ Add a new assignment" />
+                  <input id="addAssignmentInput" type="text" name="title"
+                      placeholder="+ Add a new assignment"
+                  />
                 </div>
               </div>
-              <div id="addAssignmentDetails" class="control-group">
-                <label for="formAddAssignmentDetail" class="control-label">
-                  Please give any relevant details, context, location, time, etc.
-                </label>
-                <div class="controls">
-                  <textarea rows="5"></textarea>
+              <div id="addAssignmentDetails">
+                <div class="control-group">
+                  <label for="formAddAssignmentDetail" class="control-label">
+                    Please give any relevant details, context, location, time, etc.
+                  </label>
+                  <div class="controls">
+                    <textarea name="description" rows="5"></textarea>
+                  </div>
                 </div>
-              </div>
-              <div id="addAssignmentSubmit" class="form-actions">
-                <input type="submit" class="btn" value="Submit" />
+                <div class="form-actions">
+                  <input id="addAssignmentSubmit" type="submit" class="btn" value="Submit" />
+                </div>
               </div>
             </fieldset>
-          </form>          <div class="addAssignmentDetails"></div>
+          </form>
         </div>  
         <div id="sortedAssignmentsBlock">
           ${self.assignment()}
