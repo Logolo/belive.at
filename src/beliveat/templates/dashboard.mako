@@ -11,7 +11,15 @@
       <div id="assignmentColumn" class="span6">
         <h3>Assignments</h3>
         <div id="addAssignmentBlock">
-          <div class="addAssignment"></div>
+          <form class="navbar-search pull-left" action="">
+            <div id="addAssignment">
+              <input type="text" placeholder="+ Add a new assignment">
+            </div>
+            <div id="addAssignmentDetails">
+              <input type="textarea"></input>
+              <button></button>
+            </div>
+          </form>
           <div class="addAssignmentDetails"></div>
         </div>  
         <div id="sortedAssignmentsBlock">
