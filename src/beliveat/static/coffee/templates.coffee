@@ -46,17 +46,59 @@ define 'beliveat.templates', (exports) ->
               </li>
             <% } %>
         """
-    
+
+    # variables: cover_offer_title
     cover_offer = mobone.string.template """
-            
-            <li>Cover Offer</li>
-            
-            
+            <li class="pledgedCover">
+              <div class="pledgedCoverBody">
+                <div class="pledgedCoverClose">
+                   <button class="btn-mini buttonCoverClose">x</button>
+                </div>
+                <div class="pledgedCoverTitle"><%= cover_offer_title %></div>
+                <div class="pledgedCoverIcon">
+                  <img src="<%- assetgen.static_path('/static/gfx/cover-icon.png') %>" />
+                </div>
+              </div>
+              <div class="clear"></div>
+              <div class="pledgedCoverStatus">You pledged to cover this.</div>
+            </li>
         """
-    
-    cover_tweet = mobone.string.template """
-            
-            <li>Cover Tweet</li>
+
+    # required variables: youtube_video_id, youtube_video_title, tweet, cover_pledges[]
+    #
+    #
+    cover_tweet = mobone.string.template """         
+            <li class="tweetCover">
+              <div class="tweetCoverLink">
+                <a src="#YouTubeLink">
+                  <img src="http://img.youtube.com/vi/<%= youtube_video_id %>/0.jpg" />
+                </a>
+              </div>
+              <div class="tweetText">
+                <h3></h3>
+                <p><%= tweet %></p>
+                <div class="tweetButtons">
+                  <div class="btn-group buttonLink">
+                    <a class="btn dropdown-toggle btn-primary" data-toggle="dropdown" href="#">
+                      Link to Assignment
+                      <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                      <!-- dropdown menu links - iterate through COVER_PLEDGES -->
+                      <li><a href="#">Cover Pledge #1</a></li>
+                      <li><a href="#">Cover Pledge #2</a></li>
+                      <li><a href="#">Cover Pledge #3</a></li>
+                    </ul>
+                  </div>
+                  <button class="buttonHide">Hide</button>        
+                </div>
+              </div>
+              <div class="clear"></div>
+            </li>
+
+
+
+
             
             
         """
@@ -67,12 +109,20 @@ define 'beliveat.templates', (exports) ->
             
             
         """
-    
+
+    # variables: promote_offer_title
     promote_offer = mobone.string.template """
-            
-            <li>Promote Offer</li>
-            
-            
+            <li class="pledgedPromote">
+              <div class="pledgedPromoteBody">
+                <div class="pledgedPromoteIcon"><img src="<%- assetgen.static_path('/static/gfx/promote-icon.png') %>" /></div>
+                <div class="pledgedPromoteTitle"><%= promote_offer_title %></div>
+                <div class="pledgedPromoteClose">
+                   <button class="btn-mini buttonPromoteClose">x</button>
+                </div>
+              </div>
+              <div class="clear"></div>
+              <div class="pledgedPromoteStatus">You pledged to promote this.</div>
+            </li>            
         """
     
     promote_tweet = mobone.string.template """
