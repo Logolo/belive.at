@@ -196,16 +196,14 @@ div.coverBlock {
 .tweetCover .tweetText {
   display: block;
   float: left;
-  width: 60%;
+  width: 100%;
 }
 
 .tweetCover {
 
 }
 
-.tweetText {
-  height: 160px;
-}
+.tweetText {}
 
 .tweetText img {
   float: right;
