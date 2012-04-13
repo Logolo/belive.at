@@ -50,6 +50,13 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
     if existing:
         return
     
+    # If the tweet isn't from one of our users, then ignore it.
+    twitter_id = data['user']['id']
+    query = TwitterAccount.query.filter_by(twitter_id=twitter_id)
+    twitter_account = query.first()
+    if not twitter_account:
+        return
+    
     # Store it in the db.
     tweet = tweet_cls(id=data['id'])
     tweet.body = text
