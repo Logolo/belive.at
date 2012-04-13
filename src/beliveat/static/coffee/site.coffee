@@ -59,8 +59,37 @@ $ ->
     
     # View for a "normal" assignment listing that's available to promote or cover.
     class AssignmentWidget extends BaseWidget
-        # events: 
-        render: => @$el.html beliveat.templates.assignment @model.toJSON()
+        events:
+            'click .coverBlock':    'handle_cover'
+            'click .promoteBlock':  'handle_promote'
+        
+        handle_cover: =>
+            @create_offer 'cover', cover_offers
+            false
+        
+        handle_promote: ->
+            @create_offer 'promote', promote_offers
+            false
+        
+        create_offer: (offer_type, target_collection) ->
+            # Post to the server to create the offer.
+            $.ajax
+                url: "/assignments/#{offer_type}"
+                data:
+                    assignment: @model.get 'id'
+                    hashtag: @model.get 'hashtag'
+                dataType: "json"
+                type: "POST"
+                # If the request was successful, add the cover offer to the
+                # cover offers collection and remove this model.
+                success: (data) =>
+                    target_collection.add data
+                    @model.collection.remove @model
+                    @$el.remove()
+        
+        render: => 
+            @$el.html beliveat.templates.assignment @model.toJSON()
+        
     
     # View for an assignment that's been selected to cover.
     class CoverOfferWidget extends BaseWidget
