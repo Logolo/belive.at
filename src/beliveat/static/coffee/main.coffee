@@ -2,8 +2,8 @@
 define 'beliveat.main', (exports) ->
     
     init = ->
-        new beliveat.view.DashboardView el: $ '#dashboard-view'
-        new beliveat.events.LiveSocketClient
+        view = new beliveat.view.DashboardView el: $ '#dashboard-view'
+        live_client = new beliveat.events.LiveSocketClient
     
     exports.init = init
 
