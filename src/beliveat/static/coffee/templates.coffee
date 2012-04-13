@@ -54,6 +54,13 @@ define 'beliveat.templates', (exports) ->
             
             
         """
+
+    cover_tweet_opened = mobone.string.template """
+            
+            <li>Cover Tweet</li>
+            
+            
+        """
     
     promote_offer = mobone.string.template """
             
@@ -68,10 +75,19 @@ define 'beliveat.templates', (exports) ->
             
             
         """
+
+    promote_tweet_opened = mobone.string.template """
+            
+            <li>Promote Tweet</li>
+            
+            
+        """
     
     exports.assignment = assignment
     exports.cover_offer = cover_offer
     exports.cover_tweet = cover_tweet
+    exports.cover_tweet_opened = cover_tweet_opened
     exports.promote_offer = promote_offer
     exports.promote_tweet = promote_tweet
+    exports.promote_tweet_opened = promote_tweet_opened
 
