@@ -59,7 +59,7 @@ define 'beliveat.templates', (exports) ->
               </li>
         """
     
-    # variables: cover_offer_title
+
     cover_offer = mobone.string.template """
             <li class="pledgedCover" data-id="<%- id %>">
               <div class="pledgedCoverBody">
@@ -76,9 +76,6 @@ define 'beliveat.templates', (exports) ->
             </li>
         """
     
-    # required variables: youtube_video_id, youtube_video_title, tweet, cover_pledges[]
-    #
-    #
     cover_tweet = mobone.string.template """         
             <li class="tweetCover">
               <div class="tweetCoverLink">
@@ -122,12 +119,11 @@ define 'beliveat.templates', (exports) ->
             
         """
 
-    # variables: promote_offer_title
     promote_offer = mobone.string.template """
             <li class="pledgedPromote">
               <div class="pledgedPromoteBody">
                 <div class="pledgedPromoteIcon"><img src="<%- assetgen.static_path('/static/gfx/promote-icon.png') %>" /></div>
-                <div class="pledgedPromoteTitle"><%= promote_offer_title %></div>
+                <div class="pledgedPromoteTitle"><%= title %></div>
                 <div class="pledgedPromoteClose">
                    <button class="btn-mini buttonPromoteClose">x</button>
                 </div>

@@ -10,6 +10,10 @@ body {
   clear: both;
 }
 
+.noclick {
+  opacity: 0.2;
+}
+
 .videoWrapper {
 	position: relative;
 	padding-bottom: 56.25%; /* 16:9 */
