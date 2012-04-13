@@ -92,8 +92,6 @@ class Manager(object):
     def handle_twitter_data(self, data_str):
         """Put incoming tweets onto the redis queue."""
         
-        logger.info(data_str)
-        
         # If the text doesn't looks valid, ignore it.
         is_status = 'in_reply_to_status_id' in data_str
         is_deletion = 'delete' in data_str
