@@ -22,7 +22,7 @@ define 'beliveat.view', (exports) ->
             @create_offer 'cover', beliveat.model.cover_offers
             false
         
-        handle_promote: ->
+        handle_promote: =>
             @create_offer 'promote', beliveat.model.promote_offers
             false
         
@@ -39,8 +39,12 @@ define 'beliveat.view', (exports) ->
                 # cover offers collection and remove this model.
                 success: (data) =>
                     target_collection.add data
-                    @model.collection.remove @model
-                    @$el.remove()
+                    switch offer_type
+                        when 'cover' then key = 'covering'
+                        when 'promote' then key = 'promoting'
+                    data = {}
+                    data[key] = true
+                    @model.set data
         
         render: => 
             @$el.html beliveat.templates.assignment @model.toJSON()

@@ -90,14 +90,12 @@ def dashboard_view(request):
     # Flag all the assignments that you've offered to cover.
     covering_ids = [item['assignment'] for item in cover_offers]
     for item in your_assignments + popular_assignments:
-        if item['id'] in covering_ids:
-            item['covering'] = True
+        item['covering'] = item['id'] in covering_ids
     
     # Flag all the assignments that you've offered to promote.
     promoting_ids = [item['assignment'] for item in promote_offers]
     for item in your_assignments + popular_assignments:
-        if item['id'] in promoting_ids:
-            item['promoting'] = True
+        item['promoting'] = item['id'] in promoting_ids
     
     # Return as json strings to write into the template.
     return {
