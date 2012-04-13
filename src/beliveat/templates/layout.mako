@@ -76,5 +76,10 @@
       assetgen.add_manifest('/static', ${request.assets | n});
     </script>
     <script src="${request.static_url('beliveat:assets/client.js')}"></script>
+    <script type="text/javascript">
+      % if request.user:
+        beliveat.user = '${request.user.username}';
+      % endif
+    </script>
   </body>
 </html>

@@ -167,13 +167,24 @@ $ ->
         initialize: ->
             @collection.bind 'add', (instance) => @add instance
             @collection.bind 'reset', => @collection.each @add
+            if @options.url?
+                @collection.url = @options.url
+                @collection.fetch()
         
     
     # View for the assignments listing.
-    class AssignmentsListing extends BaseListing
-        add: (instance) ->
+    class YourAssignmentsListing extends BaseListing
+        add: (instance) =>
             widget = new AssignmentWidget model: instance
             @$el.prepend widget.$el.html()
+        
+    
+    # View for the assignments listing.
+    class PopularAssignmentsListing extends BaseListing
+        add: (instance) =>
+            if instance.get('author') isnt beliveat.user
+                widget = new AssignmentWidget model: instance
+                @$el.prepend widget.$el.html()
         
     
     # View for the listing of cover offers.
@@ -231,12 +242,14 @@ $ ->
             # Assignments listings.
             $your_assignments_el = @$ "#yourAssignmentsBlock ul"
             $popular_assignments_el = @$ "#sortedAssignmentsBlock ul"
-            @your_assignments_listing = new AssignmentsListing
+            @your_assignments_listing = new YourAssignmentsListing
                 collection: your_assignments
                 el: $your_assignments_el
-            @popular_assignments_listing = new AssignmentsListing
+                url: '/assignments/your'
+            @popular_assignments_listing = new PopularAssignmentsListing
                 collection: popular_assignments
                 el: $popular_assignments_el
+                url: '/assignments/popular'
             # Cover offers and own tweets listings.
             $cover_offers_el = @$ ".pledgedCoverBlock .pledgedCoverWrapper"
             $own_tweets_el = @$ ".pledgedCoverBlock .tweetCoverWrapper"
