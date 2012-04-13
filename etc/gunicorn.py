@@ -39,7 +39,7 @@ def when_ready(server):
     gevent.spawn(monitor)
 
 max_requests = 20000
-preload_app = True
+#preload_app = True
 timeout = 40
 loglevel = 'info'
 worker_class = 'pyramid_socketio.gunicorn.workers.GeventSocketIOWorker'
