@@ -17,6 +17,13 @@ body {
   margin: 10px 0;
 }
 
+#dashboard-view h4 {
+  width: 100%;
+  background-color: #eee;
+  text-transform: uppercase;
+  margin: 10px 0;
+}
+
 div#addAssignmentBlock {
 }
 
@@ -35,6 +42,7 @@ div#addAssignmentBlock {
 #yourAssignmentsBlock li.assignment {
   background-color: #fff;
   border: 1px solid #ccc;
+  margin: 0 0 10px 0;
 }
 
 div.promoteBlock {
@@ -48,6 +56,7 @@ div.assignmentContent {
   display: block;
   float: left;
   width: 75%;
+  padding: 0 5px;
 }
 
 div.coverBlock {
@@ -57,7 +66,12 @@ div.coverBlock {
   padding: 10px 2px;
 }
 
-.coverBlock div, .promoteBlock div {text-align: center}
+.coverBlock div, .promoteBlock div {
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #999;
+}
 
 .pledges {
   font-size: 1.8em;
@@ -65,13 +79,19 @@ div.coverBlock {
 }
 
 .pledgesLabel {
-  font-size: .8em;
-  text-transform: uppercase;
+  font-size: .6em;
 }
 
 .assignmentAuthor {
   font-size: .8em;
   padding-bottom: 10px;
+  vertical-align: text-bottom;
+  margin-top: 30px;
+}
+
+.assignmentAuthor img {
+  height: 20px;
+  width: 20px;
 }
 
 .pledgedCoverWrapper, .pledgedPromote {
@@ -84,12 +104,15 @@ div.coverBlock {
 
 .pledgedCover {
   margin: 10px 0;
+  border-left: 5px solid #aaa;
+  padding-left: 5px;
 }
 
-.pledgedCoverTitle {
+.pledgedCoverTitle, .pledgedPromoteTitle {
   display: block;
   float: left;
   width: 90%;
+  font-size: 1.3em;
 }
 
 .pledgedCoverIcon {
@@ -102,10 +125,17 @@ div.coverBlock {
   float: right;
 }
 
-.pledgedCoverStatus {
+.pledgedCoverClose button {
+  width: 15px;
+  height: 15px;
+  line-height: 5px;
+}
+
+.pledgedCoverStatus, .pledgedPromoteStatus {
   font-size: 0.8em;
   text-transform: uppercase;
   text-align: right;
+  padding-right: 30px;
 }
 
 .tweetCover {
@@ -117,6 +147,7 @@ div.coverBlock {
   float: right;
   width: 40%;
   padding: 15px 0 10px 0;
+  vertical-align: top;
 }
 
 .tweetCoverLink img, .tweetPromoteLink img {
@@ -124,7 +155,12 @@ div.coverBlock {
   height: auto;
 }
 
-.tweetPromoteLink {float: left;}
+.tweetPromoteLink {
+  float: left;
+  padding-right: 10px;
+}
+
+
 
 .tweetCover .tweetText {
   display: block;
@@ -132,12 +168,50 @@ div.coverBlock {
   width: 60%;
 }
 
+.tweetCover {
+
+}
+
+.tweetText {
+  height: 160px;
+}
+
+.tweetText img {
+  float: right;
+}
+
 .tweetButtons {
   display: block;
+  
 }
+
+.buttonFlag {
+  float: left;
+  font-size: .6em;
+  line-height: .8em;
+}
+
+.buttonFlag img {
+  float: left;
+  margin-right: 5px;
+}
+
+.buttonRetweet {
+  float: right;
+}
+
+.buttonHide {
+  float: right;
+}
+
 
 .buttonLink {
   display: inline-block;
+  float: right;
+}
+
+.buttonHide {
+  
 }
 
 .tweetCoverWrapper, .tweetPromoteWrapper {
@@ -152,5 +226,19 @@ div.coverBlock {
 .pledgedPromoteIcon, .pledgedPromoteTitle {
   display: block;
   float: left;
+  padding-right: 5px;
 }
 
+.pledgedPromoteTitle {
+
+}
+
+.pledgedPromoteClose {
+  float: right;
+}
+
+.pledgedPromoteClose button {
+  width: 15px;
+  height: 15px;
+  line-height: 5px;
+}

@@ -15,6 +15,7 @@
       <h3>"YouTube video title here"</h3>
       <p>Tweet from the person promoting the video is here. Blah blah blah blah. Blah!</p>
       <div class="tweetButtons">
+        <button class="buttonHide">Hide</button>
         <div class="btn-group buttonLink">
           <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
             Link to Assignment
@@ -27,7 +28,6 @@
             <li><a href="#">Cover Pledge #3</a></li>
           </ul>
         </div>
-        <button class="buttonHide">Hide</button>
       </div>
     </div>
     <div class="clear"></div>
@@ -42,7 +42,8 @@
       </a>
     </div>    
     <div class="tweetText">
-      <h3>"YouTube video title here"</h3><img src="/static/gfx/defaultUser.png" />
+      <img src="/static/gfx/defaultUser.png" />
+      <h3>"YouTube video title here"</h3>
       <p>Tweet from the person promoting the video is here. Blah blah blah blah. Blah!</p>
       <div class="tweetButtons">
         <button class="buttonFlag"><img src="/static/gfx/flag.png" />Flag as Inappropriate</button>
@@ -66,7 +67,7 @@
       </div>
     </div>
     <div class="clear"></div>
-    <div class="pledgedCoverStatus">You pledged to report on this.</div>
+    <div class="pledgedCoverStatus">You pledged to cover this.</div>
   </div>
 </%def>
 
@@ -80,7 +81,7 @@
       </div>
     </div>
     <div class="clear"></div>
-    <div class="pledgedPromotestatus">You fulfilled your pledge to retweet reports on this.</div>
+    <div class="pledgedPromoteStatus">You pledged to promote this.</div>
   </div>
 </%def>
 
