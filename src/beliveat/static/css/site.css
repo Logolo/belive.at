@@ -25,7 +25,7 @@ body {
 	height: 100%;
 }
 
-.tweetCoverView, .tweetPromoteView {
+.tweetCoverOpened, .tweetPromoteOpened {
   margin: 10px 0;
   background-color: #111;
   color: #fff;
@@ -179,6 +179,7 @@ div.coverBlock {
 .tweetCoverLink img, .tweetPromoteLink img {
   width: 100%;
   height: auto;
+  padding: 5px;
 }
 
 .tweetPromoteLink {

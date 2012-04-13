@@ -34,8 +34,8 @@
   </div>
 </%def>
 
-<%def name="tweetCoverView()">
-  <div class="tweetPromoteView">
+<%def name="tweetCoverOpened()">
+  <div class="tweetPromoteOpened">
       <button class="btn-mini buttonTweetViewClose">x</button>
       <h3>"YouTube video title here"</h3>
     <div class="videoWrapper">
@@ -81,8 +81,8 @@
   </div>
 </%def>
 
-<%def name="tweetPromoteView()">
-  <div class="tweetPromoteView">
+<%def name="tweetPromoteOpened()">
+  <div class="tweetPromoteOpened">
       <button class="btn-mini buttonTweetViewClose">x</button>
       <h3>"YouTube video title here"</h3>
     <div class="videoWrapper">
@@ -183,7 +183,7 @@
               ${self.pledgedCover()}
           </div>
           <div class="tweetCoverWrapper">
-            ${self.tweetCoverView()}
+            ${self.tweetCoverOpened()}
             ${self.tweetCover()}
           </div>
         </div>
@@ -192,7 +192,7 @@
             ${pledgedPromote()}
             <div class="tweetPromoteWrapper">
               ${self.tweetPromote()}
-              ${self.tweetPromoteView()}
+              ${self.tweetPromoteOpened()}
               ${self.tweetPromote()}
             </div>
           </div>
