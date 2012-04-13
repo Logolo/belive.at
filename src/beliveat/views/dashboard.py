@@ -24,6 +24,7 @@ def get_your_cover_offers(request):
     query = query.filter(CoverOffer.user==request.user)
     query = query.filter(Assignment.hashtag==request.hashtag)
     query = query.filter(CoverOffer.created>get_one_week_ago())
+    query = query.filter(CoverOffer.closed==False)
     return [item.__json__() for item in query.all()]
 
 def get_your_promote_offers(request):
@@ -33,6 +34,7 @@ def get_your_promote_offers(request):
     query = query.filter(PromoteOffer.user==request.user)
     query = query.filter(Assignment.hashtag==request.hashtag)
     query = query.filter(PromoteOffer.created>get_one_week_ago())
+    query = query.filter(PromoteOffer.closed==False)
     return [item.__json__() for item in query.all()]
 
 def get_own_tweets(request):
@@ -42,6 +44,7 @@ def get_own_tweets(request):
     query = query.filter(Tweet.user_twitter_id==request.user.twitter_account.twitter_id)
     query = query.filter(Tweet.hashtags.contains(request.hashtag))
     query = query.filter(Tweet.created>get_one_week_ago())
+    query = query.filter(Tweet.coverage_records==None)
     return [item.__json__() for item in query.all()]
 
 def get_your_assignments(request):
