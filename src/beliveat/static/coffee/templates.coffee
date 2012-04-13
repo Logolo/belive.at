@@ -58,15 +58,15 @@ define 'beliveat.templates', (exports) ->
                 <div class="clear"></div>
               </li>
         """
-
+    
     # variables: cover_offer_title
     cover_offer = mobone.string.template """
-            <li class="pledgedCover">
+            <li class="pledgedCover" data-id="<%- id %>">
               <div class="pledgedCoverBody">
                 <div class="pledgedCoverClose">
                    <button class="btn-mini buttonCoverClose">x</button>
                 </div>
-                <div class="pledgedCoverTitle"><%= cover_offer_title %></div>
+                <div class="pledgedCoverTitle"><%= title %></div>
                 <div class="pledgedCoverIcon">
                   <img src="<%- assetgen.static_path('/static/gfx/cover-icon.png') %>" />
                 </div>
@@ -75,7 +75,7 @@ define 'beliveat.templates', (exports) ->
               <div class="pledgedCoverStatus">You pledged to cover this.</div>
             </li>
         """
-
+    
     # required variables: youtube_video_id, youtube_video_title, tweet, cover_pledges[]
     #
     #

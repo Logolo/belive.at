@@ -224,6 +224,9 @@ class PromoteOffer(Base, BaseMixin):
     user = relationship(simpleauth_model.User, lazy='joined',
             backref='promote_offers')
     
+    # Has the originating user closed this?
+    closed = Column(Boolean, default=False)
+    
     def __json__(self):
         """Return a dictionary representation of the ``PromoteOffer`` instance."""
         
@@ -233,7 +236,8 @@ class PromoteOffer(Base, BaseMixin):
             'note': self.note,
             'assignment': self.assignment.public_id,
             'title': self.assignment.title,
-            'user': self.user.username
+            'user': self.user.username,
+            'closed': self.closed
         }
     
 
@@ -254,6 +258,9 @@ class CoverOffer(Base, BaseMixin):
     user = relationship(simpleauth_model.User, lazy='joined',
             backref='cover_offers')
     
+    # Has the originating user closed this?
+    closed = Column(Boolean, default=False)
+    
     def __json__(self):
         """Return a dictionary representation of the ``CoverOffer`` instance."""
         
@@ -263,7 +270,8 @@ class CoverOffer(Base, BaseMixin):
             'note': self.note,
             'assignment': self.assignment.public_id,
             'title': self.assignment.title,
-            'user': self.user.username
+            'user': self.user.username,
+            'closed': self.closed
         }
     
 

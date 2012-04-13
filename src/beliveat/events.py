@@ -50,6 +50,13 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
     if existing:
         return
     
+    # If the tweet isn't from one of our users, then ignore it.
+    twitter_id = data['user']['id']
+    query = TwitterAccount.query.filter_by(twitter_id=twitter_id)
+    twitter_account = query.first()
+    if not twitter_account:
+        return
+    
     # Store it in the db.
     tweet = tweet_cls(id=data['id'])
     tweet.body = text
@@ -64,6 +71,7 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
     hashtag_values = [item.value for item in tweet.hashtags]
     query = CoverOffer.query.filter(Hashtag.value.in_(hashtag_values))
     query = query.filter(TwitterAccount.twitter_id==tweet.user_twitter_id)
+    query = query.filter(CoverOffer.closed==False)
     
     logger.warn('XXX will we delete ``CoverOffer``s or retire them?')
     
