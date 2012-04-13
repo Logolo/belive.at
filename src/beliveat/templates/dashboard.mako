@@ -34,6 +34,32 @@
   </div>
 </%def>
 
+<%def name="tweetCoverView()">
+  <div class="tweetPromoteView">
+      <button class="btn-mini buttonTweetViewClose">x</button>
+      <h3>"YouTube video title here"</h3>
+    <div class="videoWrapper">
+      <iframe class="youtube-player" type="text/html" src="http://www.youtube.com/embed/qVaW3rfCwq8" frameborder="0"width="640" height="384"></iframe>
+    </div>
+      <div class="tweetButtons">
+        <div class="btn-group buttonLink">
+          <a class="btn dropdown-toggle btn-primary" data-toggle="dropdown" href="#">
+            Link to Assignment
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <!-- dropdown menu links - iterate through COVER_PLEDGES -->
+            <li><a href="#">Cover Pledge #1</a></li>
+            <li><a href="#">Cover Pledge #2</a></li>
+            <li><a href="#">Cover Pledge #3</a></li>
+          </ul>
+        </div>
+        <button class="buttonHide">Hide</button>        
+      </div>
+    <div class="clear"></div>
+  </div>
+</%def>
+
 <%def name="tweetPromote()">
   <div class="tweetPromote">
     <div class="tweetPromoteLink">
@@ -50,6 +76,22 @@
         <button class="buttonRetweet btn-primary">Retweet</button>        
         <button class="buttonHide">Hide</button>
       </div>
+    </div>
+    <div class="clear"></div>
+  </div>
+</%def>
+
+<%def name="tweetPromoteView()">
+  <div class="tweetPromoteView">
+      <button class="btn-mini buttonTweetViewClose">x</button>
+      <h3>"YouTube video title here"</h3>
+    <div class="videoWrapper">
+      <iframe class="youtube-player" type="text/html" src="http://www.youtube.com/embed/qVaW3rfCwq8" frameborder="0"width="640" height="384"></iframe>
+    </div>
+    <div class="tweetButtons">
+      <button class="buttonFlag"><img src="/static/gfx/flag.png" />Flag as Inappropriate</button>
+      <button class="buttonRetweet btn-primary">Retweet</button>        
+      <button class="buttonHide">Hide</button>
     </div>
     <div class="clear"></div>
   </div>
@@ -141,7 +183,7 @@
               ${self.pledgedCover()}
           </div>
           <div class="tweetCoverWrapper">
-            ${self.tweetCover()}
+            ${self.tweetCoverView()}
             ${self.tweetCover()}
           </div>
         </div>
@@ -150,7 +192,7 @@
             ${pledgedPromote()}
             <div class="tweetPromoteWrapper">
               ${self.tweetPromote()}
-              ${self.tweetPromote()}
+              ${self.tweetPromoteView()}
               ${self.tweetPromote()}
             </div>
           </div>

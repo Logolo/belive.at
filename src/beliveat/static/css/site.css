@@ -10,6 +10,29 @@ body {
   clear: both;
 }
 
+.videoWrapper {
+	position: relative;
+	padding-bottom: 56.25%; /* 16:9 */
+	padding-top: 25px;
+	height: 0;
+  margin: 5px 0;
+}
+.videoWrapper iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.tweetCoverView, .tweetPromoteView {
+  margin: 10px 0;
+  background-color: #111;
+  color: #fff;
+  padding: 5px;
+}
+
+
 #dashboard-view h3.columnTitle {
   width: 100%;
   background-color: #eee;
@@ -104,8 +127,9 @@ div.coverBlock {
 
 .pledgedCover {
   margin: 10px 0;
-  border-left: 5px solid #aaa;
-  padding-left: 5px;
+  border: 1px solid #ccc;
+  border-left: 5px solid #ccc;
+  padding: 5px;
 }
 
 .pledgedCoverTitle, .pledgedPromoteTitle {
@@ -139,8 +163,9 @@ div.coverBlock {
   padding-right: 30px;
 }
 
-.tweetCover {
+.tweetCover, .tweetPromote {
   vertical-align: top;
+  margin: 5px 0;
 }
 
 .tweetCoverLink, .tweetPromoteLink {
@@ -242,4 +267,9 @@ div.coverBlock {
   width: 15px;
   height: 15px;
   line-height: 5px;
+}
+
+
+.buttonTweetViewClose {
+  float: right;
 }
