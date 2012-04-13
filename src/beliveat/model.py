@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 import json
 import datetime
+import random
 
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Unicode, UnicodeText
@@ -15,6 +16,10 @@ from sqlalchemy.orm import backref, relationship
 from pyramid_basemodel import Base, BaseMixin, Session, save
 from pyramid_simpleauth import model as simpleauth_model
 from pyramid_twitterauth import model as twitterauth_model
+
+def generate_public_id():
+    return random.randint(100000, 9999999)
+
 
 class Hashtag(Base, BaseMixin):
     """Encapsulate a Twitter #hashtag."""
@@ -53,6 +58,9 @@ class Assignment(Base, BaseMixin):
     # Human friendly descriptive information.
     title = Column(Unicode(64))
     description = Column(UnicodeText)
+    
+    # Public facing unique identifier.
+    public_id = Column(Integer, unique=True, default=generate_public_id)
     
     ## Dates this assignment is valid for.
     #effective_from = Column(DateTime)
@@ -140,6 +148,7 @@ class Assignment(Base, BaseMixin):
         profile_image = data['profile_image_url']
         
         return {
+            'id': self.public_id,
             'author': self.author.username,
             'description': self.description,
             'hashtag': self.hashtag.value,
