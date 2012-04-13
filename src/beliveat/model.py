@@ -202,6 +202,9 @@ class PromoteOffer(Base, BaseMixin):
     
     __tablename__ = 'promote_offers'
     
+    # Public facing unique identifier.
+    public_id = Column(Integer, unique=True, default=generate_public_id)
+    
     note = Column(UnicodeText)
     
     # XXX n.b.: fill in with the current assignment's count on init.
@@ -213,11 +216,27 @@ class PromoteOffer(Base, BaseMixin):
     user_id = Column(Integer, ForeignKey('auth_users.id'))
     user = relationship(simpleauth_model.User, lazy='joined',
             backref='promote_offers')
+    
+    def __json__(self):
+        """Return a dictionary representation of the ``PromoteOffer`` instance."""
+        
+        return {
+            'id': self.public_id,
+            'offer_type': 'promote',
+            'note': self.note,
+            'assignment': self.assignment.public_id,
+            'title': self.assignment.title,
+            'user': self.user.username
+        }
+    
 
 class CoverOffer(Base, BaseMixin):
     """Encapsulate an offer to cover an assignment."""
     
     __tablename__ = 'cover_offers'
+    
+    # Public facing unique identifier.
+    public_id = Column(Integer, unique=True, default=generate_public_id)
     
     note = Column(UnicodeText)
     
@@ -227,6 +246,19 @@ class CoverOffer(Base, BaseMixin):
     user_id = Column(Integer, ForeignKey('auth_users.id'))
     user = relationship(simpleauth_model.User, lazy='joined',
             backref='cover_offers')
+    
+    def __json__(self):
+        """Return a dictionary representation of the ``CoverOffer`` instance."""
+        
+        return {
+            'id': self.public_id,
+            'offer_type': 'cover',
+            'note': self.note,
+            'assignment': self.assignment.public_id,
+            'title': self.assignment.title,
+            'user': self.user.username
+        }
+    
 
 class PromotionRecord(Base, BaseMixin):
     """"""

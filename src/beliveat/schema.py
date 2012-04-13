@@ -55,3 +55,10 @@ class CreateAssignment(FlexibleSchema):
     description = validators.UnicodeString()
     
 
+class AssignmentOffer(FlexibleSchema):
+    """Form fields to validate when offering to cover or promote an assignment."""
+    
+    assignment = validators.Int(not_empty=True)
+    hashtag = Hashtag(max=32, not_empty=True)
+    note = validators.UnicodeString(max=140, if_missing=u'')
+
