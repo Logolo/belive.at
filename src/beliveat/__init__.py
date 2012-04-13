@@ -31,6 +31,10 @@ class CustomRequest(AssetGenRequestMixin, Request):
 def main(global_config, **settings):
     """Call with settings to create and return a WSGI application."""
     
+    ## XXX temporarily Patch the DB config.
+    #from sqlalchemy.pool import NullPool
+    #settings['sqlalchemy.poolclass'] = NullPool
+    
     # Initialise a configurator.
     config = Configurator(settings=settings, root_factory=Root)
     

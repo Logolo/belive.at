@@ -2,7 +2,7 @@
 define 'beliveat.templates', (exports) ->
     
     assignment = mobone.string.template """
-            <li class="assignment">
+            <li class="assignment" data-id="<%- id %>">
               <div class="coverBlock">
                 <a href="#cover">
                   <div>
