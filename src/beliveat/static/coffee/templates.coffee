@@ -2,61 +2,63 @@
 define 'beliveat.templates', (exports) ->
     
     assignment = mobone.string.template """
-              <li class="assignment" data-id="<%- id %>">
-                <% if (covering) { %>
-                  <div class="coverBlock noclick">
-                <%} else {%>
-                  <div class="coverBlock">
-                <% } %>                
-                  <% if (!covering) { %>
-                    <a href="#cover">
-                  <% } %>
-                      <div>
-                        <img src="<%- assetgen.static_path('/static/gfx/cover.png') %>" />
-                      </div>
-                      <div class="pledges">
-                        <%= num_coverage_offers %>
-                      </div>
-                      <div class="pledgesLabel">
-                        Offers
-                      </div>
-                  <% if (!covering) { %>
-                    </a>
-                  <% } %>
-                </div>
-
-                <% if (promoting) { %>
-                  <div class="promoteBlock noclick">
-                <%} else {%>
-                  <div class="promoteBlock">
-                <% } %> 
-
-                  <% if (!promoting) { %>
-                    <a href="#support">
-                  <% } %>
-                      <div>
-                        <img src="<%- assetgen.static_path('/static/gfx/promote.png') %>" />
-                      </div>
-                      <div class="pledges">
-                        <%= num_promotion_offers %>
-                      </div>
-                      <div class="pledgesLabel">
-                        Supporters
-                      </div>
-                  <% if (!promoting) { %>                      
-                    </a>
-                  <% } %>
-                </div>
-                <div class="assignmentContent">
-                  <h3><%= title %></h3>
-                  <p><%~ description %></p>
-                  <div class="assignmentAuthor">
-                    <img src="<%- profile_image_url %>" />
-                    Submitted by <%~ '@' + author %>.
+              <% if (!covering && !promoting) { %>
+                <li class="assignment" data-id="<%- id %>">
+                  <% if (covering) { %>
+                    <div class="coverBlock noclick">
+                  <%} else {%>
+                    <div class="coverBlock">
+                  <% } %>                
+                    <% if (!covering) { %>
+                      <a href="#cover">
+                    <% } %>
+                        <div>
+                          <img src="<%- assetgen.static_path('/static/gfx/cover.png') %>" />
+                        </div>
+                        <div class="pledges">
+                          <%= num_coverage_offers %>
+                        </div>
+                        <div class="pledgesLabel">
+                          Offers
+                        </div>
+                    <% if (!covering) { %>
+                      </a>
+                    <% } %>
                   </div>
-                </div>
-                <div class="clear"></div>
-              </li>
+
+                  <% if (promoting) { %>
+                    <div class="promoteBlock noclick">
+                  <%} else {%>
+                    <div class="promoteBlock">
+                  <% } %> 
+
+                    <% if (!promoting) { %>
+                      <a href="#support">
+                    <% } %>
+                        <div>
+                          <img src="<%- assetgen.static_path('/static/gfx/promote.png') %>" />
+                        </div>
+                        <div class="pledges">
+                          <%= num_promotion_offers %>
+                        </div>
+                        <div class="pledgesLabel">
+                          Supporters
+                        </div>
+                    <% if (!promoting) { %>                      
+                      </a>
+                    <% } %>
+                  </div>
+                  <div class="assignmentContent">
+                    <h3><%= title %></h3>
+                    <p><%~ description %></p>
+                    <div class="assignmentAuthor">
+                      <img src="<%- profile_image_url %>" />
+                      Submitted by <%~ '@' + author %>.
+                    </div>
+                  </div>
+                  <div class="clear"></div>
+                </li>
+              <% } %>
         """
     
 
