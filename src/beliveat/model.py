@@ -160,7 +160,10 @@ class Assignment(Base, BaseMixin):
             'num_coverage_offers': cover_offer_count,
             'profile_image_url': profile_image,
             'rank': self.rank,
-            'title': self.title 
+            'title': self.title,
+            # Default flags -- overriden by the view machinery.
+            'covering': False,
+            'promoting': False
         }
     
 
