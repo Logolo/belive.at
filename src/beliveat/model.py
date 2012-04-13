@@ -74,6 +74,10 @@ class Assignment(Base, BaseMixin):
     author_id = Column(Integer, ForeignKey('auth_users.id'))
     author = relationship(simpleauth_model.User, lazy='joined')
     
+    # XXX updated when ``rank`` is calculated.
+    promote_offer_count = 0
+    cover_offer_count = 0
+    
     @property
     def rank(self):
         """Rank by the number of promote and cover offers."""
@@ -90,7 +94,9 @@ class Assignment(Base, BaseMixin):
         query = Session.query(PromoteOffer.created)
         query = query.filter(PromoteOffer.assignment==self)
         query = query.filter(PromoteOffer.created>one_week_ago)
-        for item in query.all():
+        results = query.all()
+        self.promote_offer_count = len(results)
+        for item in results:
             created_date = item[0]
             delta = now - created_date
             # Make sure the diff is at least one second (n.b.:
@@ -104,7 +110,9 @@ class Assignment(Base, BaseMixin):
         query = Session.query(CoverOffer.created)
         query = query.filter(CoverOffer.assignment==self)
         query = query.filter(CoverOffer.created>one_week_ago)
-        for item in query.all():
+        results = query.all()
+        self.cover_offer_count = len(results)
+        for item in results:
             created_date = item[0]
             delta = now - created_date
             seconds = max(delta.total_seconds(), 1)
@@ -116,23 +124,30 @@ class Assignment(Base, BaseMixin):
     
     
     def __json__(self):
-        """Return a dictionary representation of the ``Hashtag`` instance.
-          
-              >>> assignment = Assignment(title='T', description='...')
-              >>> assignment.hashtag = Hashtag(value='tag')
-              >>> assignment.author = simpleauth_model.User(username='thruflo')
-              >>> assignment.__json__()
-              {'author': 'thruflo', 'hashtag': 'tag', 'description': '...', 'rank': 0, 'title': 'T'}
-              
-          
-        """
+        """Return a dictionary representation of the ``Assignment`` instance."""
+        
+        # First calculate the rank.
+        rank = self.rank
+        
+        # That means we can get the counts
+        promote_offer_count = self.promote_offer_count
+        cover_offer_count = self.cover_offer_count
+        
+        # Get the profile image.
+        twitter_account = self.author.twitter_account
+        profile = twitter_account.profile
+        data = profile.data
+        profile_image = data['profile_image_url']
         
         return {
-            'title': self.title, 
-            'rank': self.rank,
+            'author': self.author.username,
             'description': self.description,
             'hashtag': self.hashtag.value,
-            'author': self.author.username
+            'num_promotion_offers': promote_offer_count,
+            'num_coverage_offers': cover_offer_count,
+            'profile_image_url': profile_image,
+            'rank': self.rank,
+            'title': self.title 
         }
     
 

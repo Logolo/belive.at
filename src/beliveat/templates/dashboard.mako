@@ -4,31 +4,6 @@
   ${_(u'Dashboard')}
 </%def>
 
-<%def name="assignment()">
-  <li class="assignment">
-      <div class="coverBlock">
-        <a href="#cover">
-          <div><img src="/static/gfx/cover.png" /></div>
-          <div class="pledges">23</div>
-          <div class="pledgesLabel">Pledges</div>
-        </a>
-      </div>
-      <div class="promoteBlock">
-        <a href="#promote">
-          <div><img src="/static/gfx/promote.png" /></div>
-          <div class="pledges">42</div>
-          <div class="pledgesLabel">Pledges</div>
-        </a>
-      </div>
-    <div class="assignmentContent">
-      <h3>Cover police behaviour at Occupy London next Friday.</h3>
-      <p>A bunch of students will be congregating outside St. Paul's cathedral to show support. We want to make sure that there is peace and order...</p>
-      <div class="assignmentAuthor"><img src="/static/gfx/defaultUser.png" />Submitted by TheOccupyGuy.</div>
-    </div>
-    <div class="clear"></div>
-  </li>
-</%def>
-
 <%def name="tweetCover()">
   <div class="tweetCover">
     <div class="tweetCoverLink">
@@ -150,16 +125,11 @@
         </div>  
         <div id="yourAssignmentsBlock">
           <h4>Your Assignments</h4>
-          <ul>
-            ${self.assignment()}
-          </ul>
+          <ul></ul>
         </div>
         <div id="sortedAssignmentsBlock">
           <h4>Popular Assignments</h4>
-          <ul>
-            ${self.assignment()}
-            ${self.assignment()}  
-          </ul>
+          <ul></ul>
         </div>
       </div>
       <div id="coverageColumn" class="span6">
