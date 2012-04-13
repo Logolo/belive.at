@@ -2,11 +2,15 @@
 define 'beliveat.templates', (exports) ->
     
     assignment = mobone.string.template """
-            <% if (!promoting || !covering) { %>
               <li class="assignment" data-id="<%- id %>">
-                <div class="coverBlock">
+                <% if (covering) { %>
+                  <div class="coverBlock noclick">
+                <%} else {%>
+                  <div class="coverBlock">
+                <% } %>                
                   <% if (!covering) { %>
                     <a href="#cover">
+                  <% } %>
                       <div>
                         <img src="<%- assetgen.static_path('/static/gfx/cover.png') %>" />
                       </div>
@@ -16,12 +20,20 @@ define 'beliveat.templates', (exports) ->
                       <div class="pledgesLabel">
                         Offers
                       </div>
+                  <% if (!covering) { %>
                     </a>
                   <% } %>
                 </div>
-                <div class="promoteBlock">
+
+                <% if (promoting) { %>
+                  <div class="promoteBlock noclick">
+                <%} else {%>
+                  <div class="promoteBlock">
+                <% } %> 
+
                   <% if (!promoting) { %>
                     <a href="#support">
+                  <% } %>
                       <div>
                         <img src="<%- assetgen.static_path('/static/gfx/promote.png') %>" />
                       </div>
@@ -31,6 +43,7 @@ define 'beliveat.templates', (exports) ->
                       <div class="pledgesLabel">
                         Supporters
                       </div>
+                  <% if (!promoting) { %>                      
                     </a>
                   <% } %>
                 </div>
@@ -44,7 +57,6 @@ define 'beliveat.templates', (exports) ->
                 </div>
                 <div class="clear"></div>
               </li>
-            <% } %>
         """
 
     # variables: cover_offer_title
