@@ -176,7 +176,7 @@ $ ->
     class YourAssignmentsListing extends BaseListing
         add: (instance) =>
             widget = new AssignmentWidget model: instance
-            @$el.prepend widget.$el.html()
+            @$el.prepend widget.$el
         
     
     # View for the assignments listing.
@@ -184,28 +184,28 @@ $ ->
         add: (instance) =>
             if instance.get('author') isnt beliveat.user
                 widget = new AssignmentWidget model: instance
-                @$el.prepend widget.$el.html()
+                @$el.prepend widget.$el
         
     
     # View for the listing of cover offers.
     class CoverOffersListing extends BaseListing
         add: (instance) ->
             widget = new CoverOfferWidget model: instance
-            @$el.prepend widget.$el.html()
+            @$el.prepend widget.$el
         
     
     # View for the listing of cover offers.
     class CoverageTweetsListing extends BaseListing
         add: (instance) ->
             widget = new CoverTweetWidget model: instance
-            @$el.prepend widget.$el.html()
+            @$el.prepend widget.$el
         
     
     # View for the listing of promote offers.
     class PromoteOffersListing extends BaseListing
         add: (instance) ->
             widget = new PromoteOfferWidget model: instance
-            @$el.prepend widget.$el.html()
+            @$el.prepend widget.$el
         
     
     
