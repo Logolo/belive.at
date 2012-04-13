@@ -10,7 +10,7 @@
     //<![CDATA[
     // Tell the client who the authenticated user is and which hashtag we're on.
     beliveat.user = '${request.user.username}';
-    beliveat.hashtag = '${request.matchdict.get("hashtag")}';
+    beliveat.hashtag = '${request.hashtag.value}';
     // Bootstrap the data model.
     beliveat.model.your_assignments = new beliveat.model.AssignmentCollection();
     beliveat.model.your_assignments.reset(${your_assignments.replace('</', '<\/') | n});
