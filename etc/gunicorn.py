@@ -9,9 +9,10 @@ def on_starting(server):
     monkey.patch_socket()
 
 def post_fork(server, worker):
-    from psycogreen.gevent import psyco_gevent
-    psyco_gevent.make_psycopg_green()
-    worker.log.info("Patched psycopg2 to work with gevent.")
+    #from psycogreen.gevent import psyco_gevent
+    #psyco_gevent.make_psycopg_green()
+    #worker.log.info("Patched psycopg2 to work with gevent.")
+    pass
 
 def when_ready(server):
     def monitor():
