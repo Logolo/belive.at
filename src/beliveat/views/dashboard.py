@@ -24,7 +24,6 @@ def get_your_cover_offers(request):
     query = query.filter(CoverOffer.user==request.user)
     query = query.filter(Assignment.hashtag==request.hashtag)
     query = query.filter(CoverOffer.created>get_one_week_ago())
-    query = query.filter(CoverOffer.closed==False)
     return [item.__json__() for item in query.all()]
 
 def get_your_promote_offers(request):
@@ -34,7 +33,6 @@ def get_your_promote_offers(request):
     query = query.filter(PromoteOffer.user==request.user)
     query = query.filter(Assignment.hashtag==request.hashtag)
     query = query.filter(PromoteOffer.created>get_one_week_ago())
-    query = query.filter(PromoteOffer.closed==False)
     return [item.__json__() for item in query.all()]
 
 def get_own_tweets(request):
@@ -99,6 +97,10 @@ def dashboard_view(request):
     promoting_ids = [item['assignment'] for item in promote_offers]
     for item in your_assignments + popular_assignments:
         item['promoting'] = item['id'] in promoting_ids
+    
+    # Strip out all the closed offers.
+    cover_offers = [item for item in cover_offers if not item['closed']]
+    promote_offers = [item for item in promote_offers if not item['closed']]
     
     # Return as json strings to write into the template.
     return {

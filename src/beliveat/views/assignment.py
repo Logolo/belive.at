@@ -8,12 +8,12 @@ logger = logging.getLogger(__name__)
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 from pyramid.view import view_config
 
-from pyramid_basemodel import save as save_to_db
+from pyramid_basemodel import Session, save as save_to_db
 from pyramid_simpleform import Form
 from pyramid_simpleform.renderers import FormRenderer
 
 from ..model import Assignment, CoverOffer, PromoteOffer, Hashtag
-from ..schema import CreateAssignment, AssignmentOffer
+from ..schema import CreateAssignment, MakeOffer, CloseOffer
 
 @view_config(route_name='assignments', name='create', request_method='POST',
         xhr=True, renderer='json')
@@ -63,7 +63,7 @@ def create_offer(request, data, cls=CoverOffer, copy_count=False):
 def cover_assignment_view(request, form_cls=Form):
     """Create a cover offer."""
     
-    form = form_cls(request, schema=AssignmentOffer)
+    form = form_cls(request, schema=MakeOffer)
     if form.validate():
         return create_offer(request, form.data)
     request.response.status_int = 400
@@ -74,9 +74,33 @@ def cover_assignment_view(request, form_cls=Form):
 def promote_assignment_view(request, form_cls=Form):
     """Create a promote offer."""
     
-    form = form_cls(request, schema=AssignmentOffer)
+    form = form_cls(request, schema=MakeOffer)
     if form.validate():
         return create_offer(request, form.data, cls=PromoteOffer, copy_count=True)
+    request.response.status_int = 400
+    return form.errors
+
+
+@view_config(route_name='assignments', name='close', request_method='POST',
+        xhr=True, renderer='json')
+def close_offer_view(request, form_cls=Form):
+    """Close an offer."""
+    
+    form = form_cls(request, schema=CloseOffer)
+    if form.validate():
+        d = form.data
+        if d['offer_type'] == 'cover':
+            cls = CoverOffer
+        elif d['offer_type'] == 'promote':
+            cls = PromoteOffer
+        offer = cls.query.filter_by(public_id=d['id']).first()
+        if not offer:
+            return HTTPNotFound()
+        if not offer.assignment.public_id == d['assignment']:
+            return HTTPBadRequest()
+        offer.closed = True
+        save_to_db(offer)
+        return {'status': 'OK'}
     request.response.status_int = 400
     return form.errors
 
