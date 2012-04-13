@@ -9,6 +9,7 @@ define 'beliveat.view', (exports) ->
         initialize: ->
             @model.bind 'change', @render
             @model.bind 'destroy', @remove
+            @model.view = this
             @render()
         
     
@@ -52,7 +53,25 @@ define 'beliveat.view', (exports) ->
     
     # View for an assignment that's been selected to cover.
     class CoverOfferWidget extends BaseWidget
-        # events: 
+        events:
+            'click .pledgedCoverClose': 'handle_close'
+        
+        handle_close: =>
+            $.ajax
+                url: "/assignments/close"
+                data: @model.toJSON()
+                dataType: "json"
+                type: "POST"
+                success: (data) =>
+                    console.log data
+                    console.log @model
+                    # Remove the cover offer.
+                    @model.collection.remove @model
+                    ## If it's the last cover offer, clear the tweets.
+                    #if not @model.collection.length
+                    #    beliveat.model.own_tweets.reset()
+            false
+        
         render: => @$el.html beliveat.templates.cover_offer @model.toJSON()
     
     # View for a tweet that's a candidate to cover an assignment with.
@@ -157,6 +176,7 @@ define 'beliveat.view', (exports) ->
         initialize: ->
             @collection.bind 'add', @add
             @collection.bind 'reset', => @collection.each @add
+            @collection.bind 'remove', (instance) => instance.view.remove()
             @collection.each @add
         
     
