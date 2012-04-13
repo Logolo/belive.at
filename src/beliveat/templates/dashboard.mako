@@ -203,27 +203,35 @@
         <h3 class="columnTitle">Coverage</h3>
         <div class="pledgedCoverBlock">
           <div class="pledgedCoverWrapper">
+            <%doc>
               ${self.pledgedCover()}
               ${self.pledgedCover()}
+            </%doc>
           </div>
           <div class="tweetCoverWrapper">
-            ${self.tweetCoverOpened()}
-            ${self.tweetCover()}
+            <%doc>
+              ${self.tweetCoverOpened()}
+              ${self.tweetCover()}
+            </%doc>
           </div>
         </div>
         <div class="pledgedPromoteBlock">
           <div class="pledgedPromoteWrapper">
-            ${pledgedPromote()}
-            <div class="tweetPromoteWrapper">
-              ${self.tweetPromote()}
-              ${self.tweetPromoteOpened()}
-              ${self.tweetPromote()}
-            </div>
+            <%doc>
+              ${pledgedPromote()}
+              <div class="tweetPromoteWrapper">
+                ${self.tweetPromote()}
+                ${self.tweetPromoteOpened()}
+                ${self.tweetPromote()}
+              </div>
+            </%doc>
           </div>
           <div class="pledgedPromoteWrapper">
-            ${pledgedPromote()}
-            <div class="tweetPromoteWrapper">
-            </div>
+            <%doc>
+              ${pledgedPromote()}
+              <div class="tweetPromoteWrapper">
+              </div>
+            </%doc>
           </div>
         </div>
       </div>
