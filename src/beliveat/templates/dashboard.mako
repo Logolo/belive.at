@@ -1,7 +1,31 @@
 <%inherit file="beliveat:templates/layout.mako" />
 
 <%def name="sub_title()">
-  ${_(u'Dashboard')}
+  #${request.hashtag.value}
+</%def>
+
+<%def name="sub_scripts()">
+  <script src="${request.static_url('beliveat:assets/client.js')}"></script>
+  <script type="text/javascript">
+    //<![CDATA[
+    // Tell the client who the authenticated user is and which hashtag we're on.
+    beliveat.user = '${request.user.username}';
+    beliveat.hashtag = '${request.matchdict.get("hashtag")}';
+    // Bootstrap the data model.
+    beliveat.model.your_assignments = new beliveat.model.AssignmentCollection();
+    beliveat.model.your_assignments.reset(${your_assignments.replace('</', '<\/') | n});
+    beliveat.model.popular_assignments = new beliveat.model.AssignmentCollection();
+    beliveat.model.popular_assignments.reset(${popular_assignments.replace('</', '<\/') | n});
+    beliveat.model.cover_offers = new beliveat.model.AssignmentCollection();
+    beliveat.model.cover_offers.reset(${cover_offers.replace('</', '<\/') | n});
+    beliveat.model.own_tweets = new beliveat.model.TweetCollection();
+    beliveat.model.own_tweets.reset(${own_tweets.replace('</', '<\/') | n});
+    beliveat.model.promote_offers = new beliveat.model.AssignmentCollection();
+    beliveat.model.promote_offers.reset(${promote_offers.replace('</', '<\/') | n});
+    // start the client running
+    beliveat.main.init()
+    //]]>
+  </script>
 </%def>
 
 <%def name="tweetCover()">
@@ -87,7 +111,7 @@
 
 
 <div id="dashboard-view">
-  <h1>#Syria</h1>
+  <h1>#${request.hashtag.value}</h1>
   <div class="container-fluid">
     <div class="row-fluid">
       <div id="assignmentColumn" class="span6">

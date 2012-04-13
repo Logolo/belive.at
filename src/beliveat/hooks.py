@@ -8,7 +8,11 @@ from redis.connection import UnixDomainSocketConnection
 redis_connection_pool = redis.ConnectionPool(path='/tmp/redis.sock', db=3,
         connection_class=UnixDomainSocketConnection)
 
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid_assetgen import IAssetGenManifest
+
+from .model import Hashtag
+from .schema import Hashtag as ValidHashtag
 
 def get_redis_client(request=None, cls=redis.StrictRedis):
     """Returns a ``redis`` client.
@@ -29,8 +33,18 @@ def get_redis_client(request=None, cls=redis.StrictRedis):
     
     return cls(connection_pool=redis_connection_pool)
 
+def get_hashtag(request, model_cls=Hashtag, schema_cls=ValidHashtag):
+    """Returns a ``model.Hashtag`` instance from the request matchdict."""
+    
+    value = request.matchdict.get('hashtag')
+    try:
+        hashtag_value = schema_cls(max=32, not_empty=True).to_python(value)
+    except Invalid:
+        raise HTTPNotFound()
+    return model_cls.get_or_create(hashtag_value)
 
-def get_assetgen_manifest(request=None, interface_cls=IAssetGenManifest):
+
+def get_assetgen_manifest(request, interface_cls=IAssetGenManifest):
     """Get the manifest data registered for ``beliveat:assets``.
       
           >>> raise NotImplementedError

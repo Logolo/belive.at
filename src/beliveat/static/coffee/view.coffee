@@ -1,50 +1,5 @@
-$ ->
-    
-    # Event dispatcher.
-    dispatcher = _.clone Backbone.Events
-    
-    # Socket.io client.
-    class LiveSocketClient 
-        # Re-broadcast notifications locally, using the event type and
-        # hashtag as the event name.
-        dispatch: (event_name, hashtag, data_str) ->
-            data = JSON.parse data_str
-            dispatcher.trigger "#{event_name}:#{hashtag}", data
-        
-        # Bind to notifications
-        constructor: ->
-            @sock = io.connect '/live'
-            @sock.emit 'join', status: 'ready'
-            @sock.on 'notification', @dispatch
-        
-    
-    live_client = new LiveSocketClient
-    
-    # Data model.
-    class Assignment extends Backbone.Model
-    class AssignmentCollection extends Backbone.Collection
-        model: Assignment
-    
-    class Tweet extends Backbone.Model
-    class TweetCollection extends Backbone.Collection
-        model: Tweet
-    
-    # On the left hand side of the page, we have two collections.  First there
-    # are your assignments, pinned at the top until you do something with them.  
-    # Then below that are the rated assignments from everyone else.
-    your_assignments = new AssignmentCollection
-    popular_assignments = new AssignmentCollection
-    
-    # Then on the right hand side, we have the assignments you've offered to
-    # cover.  Below that, your tweets flow in until you assign or dismiss them.
-    cover_offers = new AssignmentCollection
-    own_tweets = new TweetCollection
-    
-    # Below that, we have the assignments that you've offered to promote, which
-    # each individually contain a collection of tweets coming in from other
-    # people covering the assignments.
-    promote_offers = new AssignmentCollection
-    
+# Backbone view classes.
+define 'beliveat.view', (exports) ->
     
     ### Widgets.
     ###
@@ -64,11 +19,11 @@ $ ->
             'click .promoteBlock':  'handle_promote'
         
         handle_cover: =>
-            @create_offer 'cover', cover_offers
+            @create_offer 'cover', beliveat.model.cover_offers
             false
         
         handle_promote: ->
-            @create_offer 'promote', promote_offers
+            @create_offer 'promote', beliveat.model.promote_offers
             false
         
         create_offer: (offer_type, target_collection) ->
@@ -144,7 +99,7 @@ $ ->
                 dataType: "json"
                 type: "POST"
                 success: (data) =>
-                    your_assignments.add data
+                    beliveat.model.your_assignments.add data
                     @model.set state: @states.success
                 error: (transport) =>
                     data = state: @states.error
@@ -179,6 +134,8 @@ $ ->
                     @model.set state: @states.reset
         
         initialize: ->
+            console.log @model
+            console.log @model.get 'hashtag'
             # Start closed and render when anything changes.
             $target = @$ '#addAssignmentDetails'
             $target.hide()
@@ -194,11 +151,9 @@ $ ->
     # Base class for listings.
     class BaseListing extends Backbone.View
         initialize: ->
-            @collection.bind 'add', (instance) => @add instance
+            @collection.bind 'add', @add
             @collection.bind 'reset', => @collection.each @add
-            if @options.url?
-                @collection.url = @options.url
-                @collection.fetch()
+            @collection.each @add
         
     
     # View for the assignments listing.
@@ -218,21 +173,21 @@ $ ->
     
     # View for the listing of cover offers.
     class CoverOffersListing extends BaseListing
-        add: (instance) ->
+        add: (instance) =>
             widget = new CoverOfferWidget model: instance
             @$el.prepend widget.$el
         
     
     # View for the listing of cover offers.
     class CoverageTweetsListing extends BaseListing
-        add: (instance) ->
+        add: (instance) =>
             widget = new CoverTweetWidget model: instance
             @$el.prepend widget.$el
         
     
     # View for the listing of promote offers.
     class PromoteOffersListing extends BaseListing
-        add: (instance) ->
+        add: (instance) =>
             widget = new PromoteOfferWidget model: instance
             @$el.prepend widget.$el
         
@@ -244,14 +199,14 @@ $ ->
     # View for the #hashtag dashboard, currently hardcoded to #syria.
     class DashboardView extends Backbone.View
         
-        # XXX hardcoded for now.
-        hashtag: 'syria'
+        # XXX Read the hashtag from the page and set on init.
+        hashtag: null
         
         # Handle the arrival of a tweet that's a candidate to be used to cover
         # an assignment.
         handle_own_tweet: (data) ->
             console.log 'DashboardView.handle_tweet'
-            own_tweets.add(data)
+            beliveat.model.own_tweets.add(data)
         
         # Handle the arrival of a tweet that's been verified by its author as
         # coverage of an assignment this use has offered to promote.
@@ -262,6 +217,7 @@ $ ->
         
         
         initialize: ->
+            @hashtag = beliveat.hashtag
             # Create assignment widget, passing through the hashtag.
             $create_assignment_el = @$ "#addAssignmentBlock"
             @create_assignment_widget = new CreateAssignmentWidget
@@ -272,34 +228,30 @@ $ ->
             $your_assignments_el = @$ "#yourAssignmentsBlock ul"
             $popular_assignments_el = @$ "#sortedAssignmentsBlock ul"
             @your_assignments_listing = new YourAssignmentsListing
-                collection: your_assignments
+                collection: beliveat.model.your_assignments
                 el: $your_assignments_el
                 url: '/assignments/your'
             @popular_assignments_listing = new PopularAssignmentsListing
-                collection: popular_assignments
+                collection: beliveat.model.popular_assignments
                 el: $popular_assignments_el
                 url: '/assignments/popular'
             # Cover offers and own tweets listings.
             $cover_offers_el = @$ ".pledgedCoverBlock .pledgedCoverWrapper"
             $own_tweets_el = @$ ".pledgedCoverBlock .tweetCoverWrapper"
             @cover_offers_listing = new CoverOffersListing
-                collection: cover_offers
+                collection: beliveat.model.cover_offers
                 el: $cover_offers_el
             @own_tweets_listing = new CoverageTweetsListing
-                collection: own_tweets
+                collection: beliveat.model.own_tweets
                 el: $own_tweets_el
             # Promote offers listing.
             $promote_offers_el = @$ "#pledgedRetweetBlock"
             @promote_offers_listing = new PromoteOffersListing
-                collection: promote_offers
+                collection: beliveat.model.promote_offers
                 el: $promote_offers_el
             # Bind to socket notifications.
-            dispatcher.on "own_tweet:#{@hashtag}", @handle_own_tweet
-            dispatcher.on "tweet_to_promote:#{@hashtag}", @handle_tweet_to_promote
+            beliveat.events.dispatcher.on "own_tweet:#{@hashtag}", @handle_own_tweet
+            beliveat.events.dispatcher.on "tweet_to_promote:#{@hashtag}", @handle_tweet_to_promote
         
     
-    # XXX temporary init code.
-    $target = $ '#dashboard-view'
-    dashboard_view = new DashboardView el: $target
-    
-
+    exports.DashboardView = DashboardView

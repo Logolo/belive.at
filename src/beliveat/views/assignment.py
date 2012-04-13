@@ -5,11 +5,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-import json
-import operator
-from datetime import timedelta
-
-from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 from pyramid.view import view_config
 
 from pyramid_basemodel import save as save_to_db
@@ -39,40 +35,6 @@ def create_assignment_view(request, form_cls=Form):
     return form.errors
 
 
-@view_config(route_name='assignments', name="your", request_method='GET',
-        xhr=True, renderer='json')
-def your_assignments_view(request):
-    """Get your assignments sorted by most recent."""
-    
-    query = Assignment.query.filter_by(author=request.user)
-    query = query.order_by(Assignment.created).limit(25)
-    return [item.__json__() for item in query.all()]
-
-@view_config(route_name='assignments', name="popular", request_method='GET',
-        xhr=True, renderer='json', http_cache=timedelta(minutes=5))
-def popular_assignments_view(request):
-    """Get assignments sorted by rating."""
-    
-    # Cache in redis for five minutes
-    KEY = 'beliveat:popular_assignments'
-    results_str = request.redis.get(KEY)
-    if results_str:
-        results = json.loads(results_str)
-    else: # Get the latest 2500 assignments and rank them.  Note that we strip out
-        # the assignments from the current user client side, so this function can
-        # be cached, seeing how it's so ridiculously expensive.
-        compare_function = operator.attrgetter('rank')
-        query = Assignment.query.order_by(Assignment.created)
-        latest_assignments = query.limit(2500).all()
-        latest_assignments.sort(key=compare_function, reverse=True)
-        # Return the 25 most popular.
-        results = [item.__json__() for item in latest_assignments[:25]]
-        results_str = json.dumps(results)
-        request.redis.setex(KEY, 300, results_str)
-    # Return the list of results.
-    return results
-
-
 def create_offer(request, data, cls=CoverOffer, copy_count=False):
     """Shared logic to create a cover or a promote offer."""
     
@@ -83,6 +45,11 @@ def create_offer(request, data, cls=CoverOffer, copy_count=False):
     assignment = query.first()
     if not assignment:
         return HTTPNotFound()
+    
+    # Don't let a user create two offers for the same thing.
+    if cls.query.filter_by(user=request.user, assignment=assignment).first():
+        return HTTPBadRequest()
+    
     # Create and save the offer.
     offer = cls(note=data['note'])
     offer.assignment = assignment

@@ -19,7 +19,7 @@ from pyramid_beaker import session_factory_from_settings
 from pyramid_simpleauth.hooks import get_roles
 from pyramid_simpleauth.tree import UserRoot
 
-from .hooks import get_assetgen_manifest, get_redis_client
+from .hooks import get_assetgen_manifest, get_hashtag, get_redis_client
 from .model import Base
 from .tree import Root
 from .views.exceptions import not_found_view
@@ -59,7 +59,7 @@ def main(global_config, **settings):
     
     # Expose routes.
     config.add_route('index', '') # <!-- splash page
-    config.add_route('dashboard', 'dashboard')
+    config.add_route('dashboard', 'dashboard/{hashtag}')
     config.add_route('assignments', 'assignments/*traverse')
     config.add_route('users', 'users/*traverse', factory=UserRoot,
                      use_global_views=True)
@@ -67,8 +67,9 @@ def main(global_config, **settings):
     config.add_static_view('socket.io/lib', 'intr:static')
     config.add_route('live', 'socket.io/*remaining')
     
-    # Extend the request with a redis client.
+    # Extend the request.
     config.set_request_property(get_redis_client, 'redis', reify=True)
+    config.set_request_property(get_hashtag, 'hashtag', reify=True)
     
     # Configure a custom 404 that first tries to append a slash to the URL.
     not_found = AppendSlashNotFoundViewFactory(not_found_view)

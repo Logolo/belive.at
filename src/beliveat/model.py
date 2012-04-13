@@ -9,6 +9,7 @@ import json
 import datetime
 import random
 
+from sqlalchemy import event
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Unicode, UnicodeText
 from sqlalchemy.orm import backref, relationship
@@ -19,6 +20,10 @@ from pyramid_twitterauth import model as twitterauth_model
 
 def generate_public_id():
     return random.randint(100000, 9999999)
+
+def get_one_week_ago():
+    now = datetime.datetime.utcnow()
+    return now - datetime.timedelta(weeks=1)
 
 
 class Hashtag(Base, BaseMixin):
@@ -72,7 +77,7 @@ class Assignment(Base, BaseMixin):
     #status_code = Column(Integer, ForeignKey('assignment_statuses.code'))
     #status = relationship(AssignmentStatus)
     
-    content_count = Column(Integer)
+    content_count = Column(Integer, default=0)
     
     # Belongs to a hashtag.
     hashtag_id = Column(Integer, ForeignKey('hashtags.id'))
@@ -92,13 +97,12 @@ class Assignment(Base, BaseMixin):
         
         logger.warn('XXX how do we retire offers?')
         
-        # Start with a rank of zero.
+        # Start with a rank of zero and ignore everything that's over a week old.
         n = 0
-        
         now = datetime.datetime.utcnow()
-        one_week_ago = now - datetime.timedelta(weeks=1)
+        one_week_ago = get_one_week_ago()
         
-        # For each promote offer within the last week.
+        # For each promote offer.
         query = Session.query(PromoteOffer.created)
         query = query.filter(PromoteOffer.assignment==self)
         query = query.filter(PromoteOffer.created>one_week_ago)
@@ -114,7 +118,7 @@ class Assignment(Base, BaseMixin):
             score = 1440 / seconds
             n += score
         
-        # For each cover offer within the last week.
+        # For each cover offer.
         query = Session.query(CoverOffer.created)
         query = query.filter(CoverOffer.assignment==self)
         query = query.filter(CoverOffer.created>one_week_ago)
@@ -292,3 +296,31 @@ tweets_to_hashtags = Table(
     Column('tweet_id', BigInteger, ForeignKey('tweets.id')),
     Column('hashtag_id', Integer, ForeignKey('hashtags.id'))
 )
+
+# Set public_id on new assignment and offer instances when created (not when
+# loaded from the db).
+def set_public_id(instance, *args, **kwargs):
+    """Set ``instance.public_id`` if not provided in the ``kwargs``.
+      
+      Setup::
+      
+          >>> from mock import Mock
+          >>> mock_instance = Mock()
+          >>> mock_instance.public_id = None
+      
+      Test::
+      
+          >>> set_public_id(mock_instance, public_id=1234)
+          >>> mock_instance.public_id
+          >>> set_public_id(mock_instance)
+          >>> int(mock_instance.public_id) == mock_instance.public_id
+          True
+      
+    """
+    
+    if not kwargs.has_key('public_id'):
+        instance.public_id = generate_public_id()
+
+event.listen(Assignment, 'init', set_public_id)
+event.listen(PromoteOffer, 'init', set_public_id)
+event.listen(CoverOffer, 'init', set_public_id)

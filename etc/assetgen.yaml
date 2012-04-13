@@ -27,8 +27,11 @@ generate:
     source: 
       - raw: | 
           (function () {
+      - ../src/beliveat/static/coffee/events.coffee
+      - ../src/beliveat/static/coffee/model.coffee
       - ../src/beliveat/static/coffee/templates.coffee
-      - ../src/beliveat/static/coffee/site.coffee
+      - ../src/beliveat/static/coffee/view.coffee
+      - ../src/beliveat/static/coffee/main.coffee
       - raw: |
           })();
     uglify:
