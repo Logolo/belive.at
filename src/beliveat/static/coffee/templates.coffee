@@ -80,38 +80,28 @@ define 'beliveat.templates', (exports) ->
     
     cover_tweet = mobone.string.template """         
             <li class="tweetCover">
-              <div class="tweetCoverLink">
-                <a src="#YouTubeLink">
-                  <img src="http://img.youtube.com/vi/<%= youtube_video_id %>/0.jpg" />
-                </a>
-              </div>
               <div class="tweetText">
-                <h3></h3>
-                <p><%= tweet %></p>
+                <p><%= text %></p>
                 <div class="tweetButtons">
+                  <button class="buttonHide btn close">Hide</button>
                   <div class="btn-group buttonLink">
                     <a class="btn dropdown-toggle btn-primary" data-toggle="dropdown" href="#">
                       Link to Assignment
                       <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                      <!-- dropdown menu links - iterate through COVER_PLEDGES -->
-                      <li><a href="#">Cover Pledge #1</a></li>
-                      <li><a href="#">Cover Pledge #2</a></li>
-                      <li><a href="#">Cover Pledge #3</a></li>
+                      <% beliveat.model.cover_offers.each(function (offer) { %>
+                        <li>
+                          <a href="#" data-id="<%- offer.get('title') %>">
+                            <%= offer.get('title') %></a>
+                        </li>
+                      <% }); %>
                     </ul>
                   </div>
-                  <button class="buttonHide">Hide</button>        
                 </div>
               </div>
               <div class="clear"></div>
             </li>
-
-
-
-
-            
-            
         """
 
     cover_tweet_opened = mobone.string.template """
