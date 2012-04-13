@@ -63,8 +63,6 @@ define 'beliveat.view', (exports) ->
                 dataType: "json"
                 type: "POST"
                 success: (data) =>
-                    console.log data
-                    console.log @model
                     # Remove the cover offer.
                     @model.collection.remove @model
                     ## If it's the last cover offer, clear the tweets.
@@ -77,12 +75,18 @@ define 'beliveat.view', (exports) ->
     # View for a tweet that's a candidate to cover an assignment with.
     class CoverTweetWidget extends BaseWidget
         # events: 
-        render: => @$el.html beliveat.templates.cover_tweet @model.toJSON()
+        render: => 
+            
+            # XXX rerender when the cover offer collection changes.
+            
+            
+            @$el.html beliveat.templates.cover_tweet @model.toJSON()
     
     # View for an assignment that's been selected to promote.
     class PromoteOfferWidget extends BaseWidget
         # events: 
-        render: => @$el.html beliveat.templates.promote_offer @model.toJSON()
+        render: => 
+            @$el.html beliveat.templates.promote_offer @model.toJSON()
     
     # View for a tweet that's a candidate to promote.
     class PromoteTweetWidget extends BaseWidget
@@ -157,8 +161,6 @@ define 'beliveat.view', (exports) ->
                     @model.set state: @states.reset
         
         initialize: ->
-            console.log @model
-            console.log @model.get 'hashtag'
             # Start closed and render when anything changes.
             $target = @$ '#addAssignmentDetails'
             $target.hide()
@@ -228,9 +230,7 @@ define 'beliveat.view', (exports) ->
         
         # Handle the arrival of a tweet that's a candidate to be used to cover
         # an assignment.
-        handle_own_tweet: (data) ->
-            console.log 'DashboardView.handle_tweet'
-            beliveat.model.own_tweets.add(data)
+        handle_own_tweet: (data) -> beliveat.model.own_tweets.add(data)
         
         # Handle the arrival of a tweet that's been verified by its author as
         # coverage of an assignment this use has offered to promote.
@@ -269,7 +269,7 @@ define 'beliveat.view', (exports) ->
                 collection: beliveat.model.own_tweets
                 el: $own_tweets_el
             # Promote offers listing.
-            $promote_offers_el = @$ "#pledgedRetweetBlock"
+            $promote_offers_el = @$ ".pledgedPromoteBlock"
             @promote_offers_listing = new PromoteOffersListing
                 collection: beliveat.model.promote_offers
                 el: $promote_offers_el
