@@ -1,7 +1,7 @@
 <%inherit file="beliveat:templates/layout.mako" />
 
 <%def name="sub_title()">
-  #${request.hashtag.value}
+  #${request.context.hashtag.value}
 </%def>
 
 <%def name="sub_scripts()">
@@ -10,7 +10,7 @@
     //<![CDATA[
     // Tell the client who the authenticated user is and which hashtag we're on.
     beliveat.user = '${request.user.username}';
-    beliveat.hashtag = '${request.hashtag.value}';
+    beliveat.story = '${request.context.hashtag.value}';
     // Bootstrap the data model.
     beliveat.model.your_assignments = new beliveat.model.AssignmentCollection();
     beliveat.model.your_assignments.reset(${your_assignments.replace('</', '<\/') | n});
@@ -153,14 +153,14 @@
 
 
 <div id="dashboard-view">
-  <h1>#${request.hashtag.value}</h1>
+  <h1>#${request.context.hashtag.value}</h1>
   <div class="container-fluid">
     <div class="row-fluid">
       <div id="assignmentColumn" class="span6">
         <h3 class="columnTitle">Assignments</h3>
         <div id="addAssignmentBlock">
-          <form action="${request.route_url('assignments', traverse=('create',))}"
-                method="post">
+          <form action="${request.resource_url(request.context, 'assignments')}/@@create"
+              method="post">
             <fieldset>
               <div class="control-group">
                 <div id="addAssignmentTitle" class="controls">

@@ -34,7 +34,7 @@
               </li>
             </ul>
             <ul class="nav pull-right">
-              % if request.is_authenticated:
+              % if request.is_authenticated and request.user:
                 <li class="dropdown">
                   <a href="#" class="dropdown-toggle"
                       data-toggle="dropdown">
