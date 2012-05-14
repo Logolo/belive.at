@@ -29,9 +29,15 @@ import threading
 import time
 import tweepy
 
+from sqlalchemy import create_engine
+
+from pyramid_basemodel import Session, bind_engine
+from pyramid_twitterauth.model import TwitterAccount
+
 from .hooks import get_redis_client
+from .model import Hashtag
 from .queue import QueueProcessor
-from .query import get_all_hashtags, get_all_twitter_ids
+from .query import get_track_keywords
 
 INPUT_CHANNEL = 'beliveat.stream:instructions'
 OUTPUT_CHANNEL = 'beliveat.queue:input'
@@ -52,6 +58,27 @@ def oauth_handler_factory(config, section_key='app:beliveat', cls=tweepy.OAuthHa
     
     # Return the authenticated handler.
     return handler
+
+
+def get_all_twitter_ids(session_cls=None):
+    """Get all the twitter ids in the db."""
+    
+    # Test jig.
+    if session_cls is None:
+        session_cls = Session
+    
+    query = session_cls.query(TwitterAccount.twitter_id)
+    return [item[0] for item in query.all()]
+
+def get_track_keywords(hashtag_cls=None):
+    """Get the hashtag values of all the active stories."""
+    
+    # Test jig.
+    if hashtag_cls is None:
+        hashtag_cls = Hashtag
+    
+    hashtags = hashtag_cls.query.filter(hashtag_cls.story!=None).all()
+    return [u'#{0}'.format(item.value) for item in hashtags]
 
 
 class StreamListener(tweepy.StreamListener):
@@ -149,17 +176,25 @@ class Manager(object):
                     self.track_keywords.append(keyword)
                     return self.reconnect()
     
-    def reload_predicates(self):
-        """Load the filter predicates.  XXX for now, we follow all Twitter users
-          and all Hashtags.  In time, we'll need to put a cap on this.
-        """
+    def reload_predicates(self, get_twitter_ids=None, get_keywords=None):
+        """Load the filter predicates."""
         
-        logger.warn('XXX Need to actually use the appropriate predicates.')
+        logger.warn('Reloading predicates...')
+        logger.warn('- current:')
+        logger.warn(self.follow_ids)
+        logger.warn(self.track_keywords)
         
-        #self.follow_ids = get_all_twitter_ids()
-        #self.track_keywords = get_all_hashtags()
+        if get_twitter_ids is None:
+            get_twitter_ids = get_all_twitter_ids
+        if get_keywords is None:
+            get_keywords = get_track_keywords
         
-        self.track_keywords = ['#syria']
+        self.follow_ids = get_twitter_ids()
+        self.track_keywords = get_keywords()
+        
+        logger.warn('- new:')
+        logger.warn(self.follow_ids)
+        logger.warn(self.track_keywords)
     
     def reconnect(self):
         """Disconnect existing clients and fire up a new one."""
@@ -257,6 +292,10 @@ def main(args=None):
     # Patch sockets and threading.
     from gevent import monkey
     monkey.patch_all()
+    
+    # Bind the model classes.
+    engine = create_engine(config.get('app:beliveat', 'sqlalchemy.url'))
+    bind_engine(engine)
     
     # Instantiate a ``Manager`` with a redis client and oauth handler and
     # start the manager running.
