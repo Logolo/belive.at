@@ -28,12 +28,13 @@ define 'beliveat.view', (exports) ->
             false
         
         create_offer: (offer_type, target_collection) ->
+            story = @model.get 'story'
+            id = @model.get 'id'
             # Post to the server to create the offer.
+            stub = "/stories/#{story}/assignments/#{id}"
+            url = "#{stub}/#{offer_type}_offers/@@create"
             $.ajax
-                url: "/assignments/#{offer_type}"
-                data:
-                    assignment: @model.get 'id'
-                    hashtag: @model.get 'hashtag'
+                url: url
                 dataType: "json"
                 type: "POST"
                 # If the request was successful, add the cover offer to the
@@ -57,9 +58,14 @@ define 'beliveat.view', (exports) ->
             'click .pledgedCoverClose': 'handle_close'
         
         handle_close: =>
+            story = @model.get 'story'
+            assignment = @model.get 'assignment'
+            id = @model.get 'id'
+            # Post to the server to close the assignment.
+            stub = "/stories/#{story}/assignments/#{assignment}"
+            url = "#{stub}/cover_offers/#{id}/@@close"
             $.ajax
-                url: "/assignments/close"
-                data: @model.toJSON()
+                url: url
                 dataType: "json"
                 type: "POST"
                 success: (data) =>
@@ -81,12 +87,32 @@ define 'beliveat.view', (exports) ->
             
             
             @$el.html beliveat.templates.cover_tweet @model.toJSON()
+        
     
     # View for an assignment that's been selected to promote.
     class PromoteOfferWidget extends BaseWidget
-        # events: 
+        events:
+            'click .buttonPromoteClose': 'handle_close'
+        handle_close: =>
+            story = @model.get 'story'
+            assignment = @model.get 'assignment'
+            id = @model.get 'id'
+            # Post to the server to close the assignment.
+            stub = "/stories/#{story}/assignments/#{assignment}"
+            url = "#{stub}/promote_offers/#{id}/@@close"
+            $.ajax
+                url: url
+                dataType: "json"
+                type: "POST"
+                success: (data) =>
+                    # Remove the offer.
+                    @model.collection.remove @model
+                    # XXX remove the tweets
+            false
+        
         render: => 
             @$el.html beliveat.templates.promote_offer @model.toJSON()
+        
     
     # View for a tweet that's a candidate to promote.
     class PromoteTweetWidget extends BaseWidget
@@ -116,12 +142,11 @@ define 'beliveat.view', (exports) ->
         handle_submit: =>
             # Get the form data.
             $form = @$ 'form'
-            url = $form.attr 'action'
-            data = hashtag: @model.get 'hashtag'
+            data = {}
             data[item.name] = item.value for item in $form.serializeArray()
             # POST to the server to subscribe.
             $.ajax
-                url: url
+                url: $form.attr 'action'
                 data: data
                 dataType: "json"
                 type: "POST"
@@ -225,9 +250,6 @@ define 'beliveat.view', (exports) ->
     # View for the #hashtag dashboard, currently hardcoded to #syria.
     class DashboardView extends Backbone.View
         
-        # XXX Read the hashtag from the page and set on init.
-        hashtag: null
-        
         # Handle the arrival of a tweet that's a candidate to be used to cover
         # an assignment.
         handle_own_tweet: (data) -> beliveat.model.own_tweets.add(data)
@@ -241,24 +263,20 @@ define 'beliveat.view', (exports) ->
         
         
         initialize: ->
-            @hashtag = beliveat.hashtag
             # Create assignment widget, passing through the hashtag.
             $create_assignment_el = @$ "#addAssignmentBlock"
             @create_assignment_widget = new CreateAssignmentWidget
                 el: $create_assignment_el
                 model: new Backbone.Model
-                    hashtag: @hashtag
             # Assignments listings.
             $your_assignments_el = @$ "#yourAssignmentsBlock ul"
             $popular_assignments_el = @$ "#sortedAssignmentsBlock ul"
             @your_assignments_listing = new YourAssignmentsListing
                 collection: beliveat.model.your_assignments
                 el: $your_assignments_el
-                url: '/assignments/your'
             @popular_assignments_listing = new PopularAssignmentsListing
                 collection: beliveat.model.popular_assignments
                 el: $popular_assignments_el
-                url: '/assignments/popular'
             # Cover offers and own tweets listings.
             $cover_offers_el = @$ ".pledgedCoverBlock .pledgedCoverWrapper"
             $own_tweets_el = @$ ".pledgedCoverBlock .tweetCoverWrapper"

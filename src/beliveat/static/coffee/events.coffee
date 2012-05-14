@@ -9,6 +9,7 @@ define 'beliveat.events', (exports) ->
         # Re-broadcast notifications locally, using the event type and
         # hashtag as the event name.
         dispatch: (event_name, hashtag, data_str) ->
+            console.log 'LiveSocketClient.dispatch', event_name, hashtag
             data = JSON.parse data_str
             dispatcher.trigger "#{event_name}:#{hashtag}", data
         
