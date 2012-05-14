@@ -33,23 +33,8 @@ def get_redis_client(request=None, cls=redis.StrictRedis):
     
     return cls(connection_pool=redis_connection_pool)
 
-def get_hashtag(request, model_cls=Hashtag, schema_cls=ValidHashtag):
-    """Returns a ``model.Hashtag`` instance from the request matchdict."""
-    
-    value = request.matchdict.get('hashtag')
-    try:
-        hashtag_value = schema_cls(max=32, not_empty=True).to_python(value)
-    except Invalid:
-        raise HTTPNotFound()
-    return model_cls.get_or_create(hashtag_value)
-
-
 def get_assetgen_manifest(request, interface_cls=IAssetGenManifest):
-    """Get the manifest data registered for ``beliveat:assets``.
-      
-          >>> raise NotImplementedError
-      
-    """
+    """Get the manifest data registered for ``beliveat:assets``."""
     
     # XXX this is hardcoded and uses a private property.
     manifest = request.registry.getUtility(interface_cls, 'beliveat:assets/')
