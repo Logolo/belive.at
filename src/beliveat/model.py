@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""SQLAlchemy data model."""
+"""SQLAlchemy data model and traversal factories."""
 
 import logging
 logger = logging.getLogger(__name__)
@@ -9,14 +9,26 @@ import json
 import datetime
 import random
 
+from formencode import validators, Invalid
+
 from sqlalchemy import event
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Unicode, UnicodeText
 from sqlalchemy.orm import backref, relationship
 
+from pyramid.security import ALL_PERMISSIONS
+from pyramid.security import Allow, Deny
+from pyramid.security import Authenticated, Everyone
+
+from zope.interface import implements
+
 from pyramid_basemodel import Base, BaseMixin, Session, save
 from pyramid_simpleauth import model as simpleauth_model
 from pyramid_twitterauth import model as twitterauth_model
+
+from .events import StoryAdded
+from .interfaces import IOffer, IOfferRoot, IOfferRecord
+from .schema import Hashtag as ValidHashtag
 
 def generate_public_id():
     return random.randint(100000, 9999999)
@@ -24,6 +36,160 @@ def generate_public_id():
 def get_one_week_ago():
     now = datetime.datetime.utcnow()
     return now - datetime.timedelta(weeks=1)
+
+
+class Root(object):
+    """Root object of the application's resource tree."""
+    
+    __name__ = None
+    
+    __acl__ = [
+        (Allow, 'r:admin', ALL_PERMISSIONS),
+        (Allow, Authenticated, 'view'),
+        (Deny, Everyone, ALL_PERMISSIONS),
+    ]
+    
+    def __init__(self, request):
+        self.request = request
+    
+    def __getitem__(self, key):
+        raise KeyError
+    
+
+class StoryRoot(Root):
+    """Root object of the story resource tree."""
+    
+    __name__ = 'stories'
+    
+    @property
+    def __parent__(self):
+        return Root(self.request)
+    
+    @property
+    def model_cls(self):
+        return Story
+    
+    def __getitem__(self, key, validator_cls=None, model_cls=None):
+        """Lookup the context by matching the ``key`` against the story's
+          hashtag value.
+        """
+        
+        logger.debug('{0}: {1}'.format(self.__class__.__name__, key))
+        
+        # Test jig.
+        if validator_cls is None:
+            validator_cls = ValidHashtag
+        if model_cls is None:
+            model_cls = self.model_cls
+        
+        # Lookup the context by hashtag value.
+        try:
+            value = validator_cls.to_python(key)
+        except Invalid:
+            pass
+        else:
+            hashtag = Hashtag.get_or_create(value)
+            context = model_cls.query.filter_by(hashtag=hashtag).first()
+            # XXX if the story doesn't exist, create it.
+            if not context:
+                context = model_cls(hashtag=hashtag)
+                event = StoryAdded(self.request, context)
+                self.request.registry.notify(event)
+                save(context)
+            return context
+        raise KeyError
+    
+
+class AssignmentRoot(StoryRoot):
+    """Traversal root for a story's assignments."""
+    
+    __name__ = 'assignments'
+    
+    @property
+    def __parent__(self):
+        return self.story.public_id
+    
+    @property
+    def model_cls(self):
+        return Assignment
+    
+    def __init__(self, story):
+        self.story = story
+    
+    def __getitem__(self, key, validator_cls=None, model_cls=None):
+        """Lookup the context by model_cls and public id."""
+        
+        logger.debug('{0}: {1}'.format(self.__class__.__name__, key))
+        
+        # Test jig.
+        if validator_cls is None:
+            validator_cls = validators.Int
+        if model_cls is None:
+            model_cls = self.model_cls
+        
+        # Lookup the context by hashtag value.
+        try:
+            value = validator_cls.to_python(key)
+        except Invalid:
+            pass
+        else:
+            context = model_cls.get_by_public_id(value)
+            logger.warn(context)
+            if context:
+                return context
+        raise KeyError
+    
+
+class BaseOfferRoot(AssignmentRoot):
+    """Traversal lookup for an assignment's offers."""
+    
+    @property
+    def __parent__(self):
+        return self.assignment.public_id
+    
+    def __init__(self, assignment):
+        self.assignment = assignment
+    
+    model_cls = NotImplemented
+
+class CoverOfferRoot(BaseOfferRoot):
+    """Traversal lookup for an assignment's cover offers."""
+    
+    implements(IOfferRoot)
+    
+    __name__ = 'cover_offers'
+    
+    @property
+    def model_cls(self):
+        return CoverOffer
+    
+
+class PromoteOfferRoot(BaseOfferRoot):
+    """Traversal lookup for an assignment's promote offers."""
+    
+    implements(IOfferRoot)
+    
+    __name__ = 'promote_offers'
+    
+    @property
+    def model_cls(self):
+        return PromoteOffer
+    
+
+
+class PublicIdMixin(object):
+    """Provides a ``public_id`` property and a ``get_by_public_id`` classmethod."""
+    
+    # Public facing unique identifier.
+    public_id = Column(Integer, unique=True, default=generate_public_id)
+    
+    @classmethod
+    def get_by_public_id(cls, public_id):
+        """Return an instance if it matches ``public_id``."""
+        
+        query = cls.query.filter_by(public_id=public_id) 
+        return query.first()
+    
 
 
 class Hashtag(Base, BaseMixin):
@@ -55,17 +221,94 @@ class Hashtag(Base, BaseMixin):
         return {'value': self.value}
     
 
-class Assignment(Base, BaseMixin):
+class Story(Base, BaseMixin, PublicIdMixin):
+    """A story that people are following."""
+    
+    __tablename__ = 'stories'
+    
+    @property
+    def __parent__(self):
+        return StoryRoot(None)
+    
+    @property
+    def __name__(self):
+        return self.hashtag.value
+    
+    @property
+    def __acl__(self):
+        return [
+            (Allow, 'r:admin', ALL_PERMISSIONS),
+            (Allow, Authenticated, 'view'),
+            (Deny, Everyone, ALL_PERMISSIONS),
+        ]
+    
+    def __getitem__(self, key):
+        """A story is a traversal container for assignments."""
+        
+        logger.debug('{0}: {1}'.format(self.__class__.__name__, key))
+        
+        if key == 'assignments':
+            return AssignmentRoot(self)
+        raise KeyError
+    
+    
+    # Belongs to a hashtag.
+    hashtag_id = Column(Integer, ForeignKey('hashtags.id'))
+    hashtag = relationship(Hashtag, lazy='joined', backref='story')
+    
+    def touch(self):
+        """Touch the modified date of this story."""
+        
+        self.modified = datetime.datetime.utcnow()
+        save(self)
+    
+    def __json__(self):
+        """Return a dictionary representation of the ``Story`` instance."""
+        
+        return {
+            'id': self.public_id,
+            'hashtag': self.hashtag.value
+        }
+    
+
+
+class Assignment(Base, BaseMixin, PublicIdMixin):
     """Encapsulate a assignment."""
     
     __tablename__ = 'assignments'
     
+    @property
+    def __parent__(self):
+        return AssignmentRoot(self.story)
+    
+    @property
+    def __name__(self):
+        return self.public_id
+    
+    @property
+    def __acl__(self):
+        return [
+            (Allow, 'r:admin', ALL_PERMISSIONS),
+            (Allow, Authenticated, 'view'),
+            (Allow, self.author.canonical_id, 'edit'),
+            (Deny, Everyone, ALL_PERMISSIONS),
+        ]
+    
+    def __getitem__(self, key):
+        """An assignment is a traversal container for offers."""
+        
+        logger.debug('{0}: {1}'.format(self.__class__.__name__, key))
+        
+        if key == 'promote_offers':
+            return PromoteOfferRoot(self)
+        elif key == 'cover_offers':
+            return CoverOfferRoot(self)
+        raise KeyError
+    
+    
     # Human friendly descriptive information.
     title = Column(Unicode(64))
     description = Column(UnicodeText)
-    
-    # Public facing unique identifier.
-    public_id = Column(Integer, unique=True, default=generate_public_id)
     
     ## Dates this assignment is valid for.
     #effective_from = Column(DateTime)
@@ -79,9 +322,9 @@ class Assignment(Base, BaseMixin):
     
     content_count = Column(Integer, default=0)
     
-    # Belongs to a hashtag.
-    hashtag_id = Column(Integer, ForeignKey('hashtags.id'))
-    hashtag = relationship(Hashtag, lazy='joined')
+    # Belongs to a story.
+    story_id = Column(Integer, ForeignKey('stories.id'))
+    story = relationship(Story, lazy='joined')
     
     # Authored by a user.
     author_id = Column(Integer, ForeignKey('auth_users.id'))
@@ -155,7 +398,7 @@ class Assignment(Base, BaseMixin):
             'id': self.public_id,
             'author': self.author.username,
             'description': self.description,
-            'hashtag': self.hashtag.value,
+            'story': self.story.hashtag.value,
             'num_promotion_offers': promote_offer_count,
             'num_coverage_offers': cover_offer_count,
             'profile_image_url': profile_image,
@@ -204,13 +447,34 @@ class TweetRecord(Base, BaseMixin):
     tweet_id = Column(BigInteger)
     by_user_twitter_id = Column(BigInteger)
 
-class PromoteOffer(Base, BaseMixin):
+class PromoteOffer(Base, BaseMixin, PublicIdMixin):
     """Encapsulate an offer to promote an assignment."""
+    
+    implements(IOffer)
     
     __tablename__ = 'promote_offers'
     
-    # Public facing unique identifier.
-    public_id = Column(Integer, unique=True, default=generate_public_id)
+    @property
+    def __parent__(self):
+        return PromoteOfferRoot(self.assignment)
+    
+    @property
+    def __name__(self):
+        return self.public_id
+    
+    @property
+    def __acl__(self):
+        return [
+            (Allow, 'r:admin', ALL_PERMISSIONS),
+            (Allow, Authenticated, 'view'),
+            (Allow, self.user.canonical_id, 'edit'),
+            (Deny, Everyone, ALL_PERMISSIONS),
+        ]
+    
+    def __getitem__(self, key):
+        logger.debug('{0}: {1}'.format(self.__class__.__name__, key))
+        raise KeyError
+    
     
     note = Column(UnicodeText)
     
@@ -235,19 +499,43 @@ class PromoteOffer(Base, BaseMixin):
             'offer_type': 'promote',
             'note': self.note,
             'assignment': self.assignment.public_id,
+            'story': self.assignment.story.hashtag.value,
             'title': self.assignment.title,
             'user': self.user.username,
             'closed': self.closed
         }
     
 
-class CoverOffer(Base, BaseMixin):
+class CoverOffer(Base, BaseMixin, PublicIdMixin):
     """Encapsulate an offer to cover an assignment."""
+    
+    implements(IOffer)
     
     __tablename__ = 'cover_offers'
     
-    # Public facing unique identifier.
-    public_id = Column(Integer, unique=True, default=generate_public_id)
+    @property
+    def __parent__(self):
+        return CoverOfferRoot(self.assignment)
+    
+    @property
+    def __name__(self):
+        return self.public_id
+    
+    @property
+    def __acl__(self):
+        acl = [
+            (Allow, 'r:admin', ALL_PERMISSIONS),
+            (Allow, Authenticated, 'view'),
+            (Allow, self.user.canonical_id, 'edit'),
+            (Deny, Everyone, ALL_PERMISSIONS),
+        ]
+        logger.debug(acl)
+        return acl
+    
+    def __getitem__(self, key):
+        logger.debug('{0}: {1}'.format(self.__class__.__name__, key))
+        raise KeyError
+    
     
     note = Column(UnicodeText)
     
@@ -269,6 +557,7 @@ class CoverOffer(Base, BaseMixin):
             'offer_type': 'cover',
             'note': self.note,
             'assignment': self.assignment.public_id,
+            'story': self.assignment.story.hashtag.value,
             'title': self.assignment.title,
             'user': self.user.username,
             'closed': self.closed
@@ -277,6 +566,8 @@ class CoverOffer(Base, BaseMixin):
 
 class PromotionRecord(Base, BaseMixin):
     """"""
+    
+    implements(IOfferRecord)
     
     __tablename__ = 'promotion_records'
     
@@ -291,6 +582,8 @@ class PromotionRecord(Base, BaseMixin):
 
 class CoverageRecord(Base, BaseMixin):
     """"""
+    
+    implements(IOfferRecord)
     
     __tablename__ = 'coverage_records'
     
@@ -308,8 +601,8 @@ tweets_to_hashtags = Table(
     Column('hashtag_id', Integer, ForeignKey('hashtags.id'))
 )
 
-# Set public_id on new assignment and offer instances when created (not when
-# loaded from the db).
+# Immediately set ``public_id`` on new story, assignment and offer instances when
+# first created (n.b.: init is not triggered when loaded from the db).
 def set_public_id(instance, *args, **kwargs):
     """Set ``instance.public_id`` if not provided in the ``kwargs``.
       
@@ -332,6 +625,6 @@ def set_public_id(instance, *args, **kwargs):
     if not kwargs.has_key('public_id'):
         instance.public_id = generate_public_id()
 
-event.listen(Assignment, 'init', set_public_id)
-event.listen(PromoteOffer, 'init', set_public_id)
-event.listen(CoverOffer, 'init', set_public_id)
+for cls in (Story, Assignment, PromoteOffer, CoverOffer):
+    event.listen(cls, 'init', set_public_id)
+
