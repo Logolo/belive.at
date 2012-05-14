@@ -19,9 +19,8 @@ from pyramid_beaker import session_factory_from_settings
 from pyramid_simpleauth.hooks import get_roles
 from pyramid_simpleauth.tree import UserRoot
 
-from .hooks import get_assetgen_manifest, get_hashtag, get_redis_client
-from .model import Base
-from .tree import Root
+from .hooks import get_assetgen_manifest, get_redis_client
+from .model import Base, Root, StoryRoot
 from .views.exceptions import not_found_view
 
 class CustomRequest(AssetGenRequestMixin, Request):
@@ -30,10 +29,6 @@ class CustomRequest(AssetGenRequestMixin, Request):
 
 def main(global_config, **settings):
     """Call with settings to create and return a WSGI application."""
-    
-    ## XXX temporarily Patch the DB config.
-    #from sqlalchemy.pool import NullPool
-    #settings['sqlalchemy.poolclass'] = NullPool
     
     # Initialise a configurator.
     config = Configurator(settings=settings, root_factory=Root)
@@ -48,28 +43,21 @@ def main(global_config, **settings):
     config.include('pyramid_twitterauth')
     config.include('pyramid_basemodel')
     
-    # Make ``request.static_url`` assetgen aware.
-    config.set_request_factory(CustomRequest)
+    # Expose routes.
+    g = dict(use_global_views=True)
+    config.add_route('index', '')
+    config.add_route('stories', 'stories/*traverse', factory=StoryRoot, **g)
+    config.add_route('users', 'users/*traverse', factory=UserRoot, **g)
+    config.add_route('live', 'socket.io/*remaining')
+    config.add_static_view('socket.io/lib', 'intr:static')
     
     # Expose ``/static``, cached for two weeks and make the assetgen manifest
     # available as ``request.assets``.
     config.add_static_view('static', 'beliveat:assets', cache_max_age=1209600)
     config.add_assetgen_manifest('beliveat:assets')
     config.set_request_property(get_assetgen_manifest, 'assets', reify=True)
-    
-    # Expose routes.
-    config.add_route('index', '') # <!-- splash page
-    config.add_route('dashboard', 'dashboard/{hashtag}')
-    config.add_route('assignments', 'assignments/*traverse')
-    config.add_route('users', 'users/*traverse', factory=UserRoot,
-                     use_global_views=True)
-    
-    config.add_static_view('socket.io/lib', 'intr:static')
-    config.add_route('live', 'socket.io/*remaining')
-    
-    # Extend the request.
     config.set_request_property(get_redis_client, 'redis', reify=True)
-    config.set_request_property(get_hashtag, 'hashtag', reify=True)
+    config.set_request_factory(CustomRequest)
     
     # Configure a custom 404 that first tries to append a slash to the URL.
     not_found = AppendSlashNotFoundViewFactory(not_found_view)
