@@ -20,7 +20,7 @@ from pyramid_simpleauth.hooks import get_roles
 from pyramid_simpleauth.tree import UserRoot
 
 from .hooks import get_assetgen_manifest, get_redis_client
-from .model import Base, Root, StoryRoot
+from .model import Base, Root, StoryRoot, TweetRoot
 from .views.exceptions import not_found_view
 
 class CustomRequest(AssetGenRequestMixin, Request):
@@ -47,6 +47,7 @@ def main(global_config, **settings):
     g = dict(use_global_views=True)
     config.add_route('index', '')
     config.add_route('stories', 'stories/*traverse', factory=StoryRoot, **g)
+    config.add_route('tweets', 'tweets/*traverse', factory=TweetRoot, **g)
     config.add_route('users', 'users/*traverse', factory=UserRoot, **g)
     config.add_route('live', 'socket.io/*remaining')
     config.add_static_view('socket.io/lib', 'intr:static')

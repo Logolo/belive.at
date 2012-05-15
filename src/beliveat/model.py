@@ -176,6 +176,38 @@ class PromoteOfferRoot(BaseOfferRoot):
         return PromoteOffer
     
 
+class TweetRoot(Root):
+    """Root object of the tweet resource tree."""
+    
+    __name__ = 'tweets'
+    
+    @property
+    def __parent__(self):
+        return Root(self.request)
+    
+    def __getitem__(self, key, validator_cls=None, model_cls=None):
+        """Lookup a tweet by status id."""
+        
+        logger.debug('{0}: {1}'.format(self.__class__.__name__, key))
+        
+        # Test jig.
+        if validator_cls is None:
+            validator_cls = validators.Int
+        if model_cls is None:
+            model_cls = Tweet
+        
+        # Lookup the context by id.
+        try:
+            value = validator_cls.to_python(key)
+        except Invalid:
+            pass
+        else:
+            context = model_cls.query.get(value)
+            if context:
+                return context
+        raise KeyError
+    
+
 
 class PublicIdMixin(object):
     """Provides a ``public_id`` property and a ``get_by_public_id`` classmethod."""
@@ -415,7 +447,44 @@ class Tweet(Base, BaseMixin):
     
     __tablename__ = 'tweets'
     
-    id =  Column(BigInteger, primary_key=True)
+    @property
+    def __parent__(self):
+        return TweetRoot(None)
+    
+    @property
+    def __name__(self):
+        return self.id
+    
+    @property
+    def __acl__(self, user_cls=None, account_cls=None):
+        """Grant all permissions to the Tweet's author, if found."""
+        
+        # Test jig.
+        if user_cls is None:
+            user_cls = simpleauth_model.User
+        if account_cls is None:
+            account_cls = twitterauth_model.TwitterAccount
+        
+        # Start with the standard ACL.
+        policy = [
+            (Allow, 'r:admin', ALL_PERMISSIONS),
+            (Allow, Authenticated, 'view'),
+            (Deny, Everyone, ALL_PERMISSIONS),
+        ]
+        
+        # If we can find the tweet's author, insert a line that
+        # grants them edit permission.
+        twitter_id = self.user_twitter_id
+        query = user_cls.query.filter(account_cls.twitter_id==twitter_id)
+        user = query.first()
+        if user:
+            policy.insert(2, (Allow, user.canonical_id, 'edit'))
+        
+        # Return the policy.
+        return policy
+    
+    
+    id = Column(BigInteger, primary_key=True)
     
     # ``JSON.dumps`` of the tweet data.
     body = Column(UnicodeText)
