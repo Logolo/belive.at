@@ -12,7 +12,7 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid_assetgen import IAssetGenManifest
 
 from .model import Hashtag
-from .schema import Hashtag as ValidHashtag
+from .schema import ACTION_CODES, Hashtag as ValidHashtag
 
 def get_redis_client(request=None, cls=redis.StrictRedis):
     """Returns a ``redis`` client.
@@ -39,4 +39,22 @@ def get_assetgen_manifest(request, interface_cls=IAssetGenManifest):
     # XXX this is hardcoded and uses a private property.
     manifest = request.registry.getUtility(interface_cls, 'beliveat:assets/')
     return json.dumps(manifest._data)
+
+def get_action_codes(request, mapping=None):
+    """Unpack the ``schema.ACTION_CODES`` into a dict.
+      
+          >>> mock_mapping = ((1, 'foo'),)
+          >>> get_action_codes(None, mapping=mock_mapping)
+          {'foo': 1}
+      
+    """
+    
+    # Test jig.
+    if mapping is None:
+        mapping = ACTION_CODES
+    
+    types = {}
+    for code, label in mapping:
+        types[label] = code
+    return types
 

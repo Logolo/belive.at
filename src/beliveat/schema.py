@@ -7,6 +7,12 @@ from formencode import validators, Invalid, Schema
 
 from ttp import HASHTAG_REGEX as valid_hashtag
 
+ACTION_CODES = (
+    (1, 'flag'),
+    (3, 'ignore'),
+    (5, 'amplify')
+)
+
 class Hashtag(validators.UnicodeString):
     """Validates that the user input matches ``valid_hashtag``, strips and
       coerces to lowercase.
@@ -36,6 +42,20 @@ class Hashtag(validators.UnicodeString):
         if value:
             candidate = u'#{0}'.format(value)
             if not valid_hashtag.match(candidate):
+                msg = self.message("invalid", state)
+                raise validators.Invalid(msg, value, state)
+    
+
+class ActionCode(validators.Int):
+    """Validates that the user input is a valid action code."""
+    
+    messages = {'invalid': 'Invalid action code.'}
+    
+    def validate_python(self, value, state):
+        super(ActionCode, self).validate_python(value, state)
+        if value:
+            values = [item[0] for item in ACTION_CODES]
+            if not value in values:
                 msg = self.message("invalid", state)
                 raise validators.Invalid(msg, value, state)
     

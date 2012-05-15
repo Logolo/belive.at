@@ -19,7 +19,7 @@ from pyramid_beaker import session_factory_from_settings
 from pyramid_simpleauth.hooks import get_roles
 from pyramid_simpleauth.tree import UserRoot
 
-from .hooks import get_assetgen_manifest, get_redis_client
+from .hooks import get_action_codes, get_assetgen_manifest, get_redis_client
 from .model import Base, Root, StoryRoot, TweetRoot
 from .views.exceptions import not_found_view
 
@@ -56,6 +56,7 @@ def main(global_config, **settings):
     # available as ``request.assets``.
     config.add_static_view('static', 'beliveat:assets', cache_max_age=1209600)
     config.add_assetgen_manifest('beliveat:assets')
+    config.set_request_property(get_action_codes, 'action_codes', reify=True)
     config.set_request_property(get_assetgen_manifest, 'assets', reify=True)
     config.set_request_property(get_redis_client, 'redis', reify=True)
     config.set_request_factory(CustomRequest)
