@@ -82,7 +82,8 @@ class QueueProcessor(object):
 def handle_data(data_str):
     """Handle data from the Twitter Streaming API, via the redis queue."""
     
-    logger.debug('.')
+    # XXX debug only really.
+    sys.stderr.write('.')
     
     # Decode into a unicode string.
     text = unicode(data_str, 'utf-8')
