@@ -67,7 +67,7 @@ def get_all_twitter_ids(session_cls=None):
     if session_cls is None:
         session_cls = Session
     
-    query = session_cls.query(TwitterAccount.twitter_id)
+    query = session_cls.query(TwitterAccount.twitter_id).limit(5000)
     return [item[0] for item in query.all()]
 
 def get_track_keywords(hashtag_cls=None):
@@ -77,7 +77,9 @@ def get_track_keywords(hashtag_cls=None):
     if hashtag_cls is None:
         hashtag_cls = Hashtag
     
-    hashtags = hashtag_cls.query.filter(hashtag_cls.story!=None).all()
+    query = hashtag_cls.query.filter(hashtag_cls.story!=None)
+    query = query.order_by(hashtag_cls.modified.desc()).limit(400)
+    hashtags = query.all()
     return [u'#{0}'.format(item.value) for item in hashtags]
 
 
