@@ -19,7 +19,11 @@ define 'beliveat.templates', (exports) ->
                           <%= num_coverage_offers %>
                         </div>
                         <div class="pledgesLabel">
-                          Reporters
+                          <% if (!covering) { %>
+                            Cover
+                          <%} else { %>
+                            Reporters
+                          <% } %>
                         </div>
                     <% if (!covering) { %>
                       </a>
@@ -42,7 +46,11 @@ define 'beliveat.templates', (exports) ->
                           <%= num_promotion_offers %>
                         </div>
                         <div class="pledgesLabel">
-                          Amplifiers
+                          <% if (!promoting) { %>
+                            Amplify
+                          <%} else { %>
+                            Amplifiers
+                          <% } %>
                         </div>
                     <% if (!promoting) { %>                      
                       </a>
