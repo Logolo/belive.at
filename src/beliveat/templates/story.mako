@@ -152,7 +152,7 @@
 </%def>
 
 
-<div id="dashboard-view">
+<div id="story-view">
   <h1>#${request.context.hashtag.value}</h1>
   <div class="container-fluid">
     <div class="row-fluid">

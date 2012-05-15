@@ -247,8 +247,8 @@ define 'beliveat.view', (exports) ->
     ### Pages.
     ###
     
-    # View for the #hashtag dashboard, currently hardcoded to #syria.
-    class DashboardView extends Backbone.View
+    # View for the Story Page.
+    class StoryView extends Backbone.View
         
         # Handle the arrival of a tweet that's a candidate to be used to cover
         # an assignment.
@@ -257,7 +257,7 @@ define 'beliveat.view', (exports) ->
         # Handle the arrival of a tweet that's been verified by its author as
         # coverage of an assignment this use has offered to promote.
         handle_tweet_to_promote: (data) ->
-            console.log 'DashboardView.handle_tweet_to_promote'
+            console.log 'StoryView.handle_tweet_to_promote'
             console.log data
             # XXX broadcast an event using the assignment id.
         
@@ -296,4 +296,4 @@ define 'beliveat.view', (exports) ->
             beliveat.events.dispatcher.on "tweet_to_promote:#{@hashtag}", @handle_tweet_to_promote
         
     
-    exports.DashboardView = DashboardView
+    exports.StoryView = StoryView

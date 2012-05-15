@@ -37,14 +37,14 @@ body {
 }
 
 
-#dashboard-view h3.columnTitle {
+#story-view h3.columnTitle {
   width: 100%;
   background-color: #eee;
   text-transform: uppercase;
   margin: 10px 0;
 }
 
-#dashboard-view h4 {
+#story-view h4 {
   width: 100%;
   background-color: #eee;
   text-transform: uppercase;
@@ -54,7 +54,7 @@ body {
 div#addAssignmentBlock {
 }
 
-#dashboard-view ul, #dashboard-view li {
+#story-view ul, #story-view li {
   list-style: none;
   margin-left: 0;
 }

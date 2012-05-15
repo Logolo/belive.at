@@ -8,7 +8,7 @@
       <p>&nbsp</p>
       <p>You direct the news by submitting assigments, covering stories and promoting them.<br>
         <em>Citizen journalism by the people for the people.</em></p>
-      <p><a class="btn btn-primary btn-large" href="/dashboard/Syria">Get started!</a></p>
+      <p><a class="btn btn-primary btn-large" href="/stories/Syria">Get started!</a></p>
     </div>
 
   </div>
