@@ -31,7 +31,7 @@ from .interfaces import IOffer, IOfferRoot, IOfferRecord
 from .schema import Hashtag as ValidHashtag
 
 def generate_public_id():
-    return random.randint(100000, 9999999)
+    return random.randint(10000, 99999999)
 
 def get_one_week_ago():
     now = datetime.datetime.utcnow()
