@@ -387,7 +387,12 @@ class Assignment(Base, BaseMixin, PublicIdMixin):
             delta = now - created_date
             # Make sure the diff is at least one second (n.b.:
             # ``timedelta.total_seconds`` requires Python>=2.7)
-            seconds = max(delta.total_seconds(), 1)
+            if hasattr(delta, 'total_seconds'):
+                tot_seconds = delta.total_seconds()
+            else:
+                secs = delta.seconds + delta.days * 24.0 * 3600.0
+                tot_seconds = (delta.microseconds + secs * 10.0**6) / 10.0**6
+            seconds = max(tot_seconds, 1)
             # Half life of 1 day.
             score = 1440 / seconds
             n += score
@@ -401,7 +406,12 @@ class Assignment(Base, BaseMixin, PublicIdMixin):
         for item in results:
             created_date = item[0]
             delta = now - created_date
-            seconds = max(delta.total_seconds(), 1)
+            if hasattr(delta, 'total_seconds'):
+                tot_seconds = delta.total_seconds()
+            else:
+                secs = delta.seconds + delta.days * 24.0 * 3600.0
+                tot_seconds = (delta.microseconds + secs * 10.0**6) / 10.0**6
+            seconds = max(tot_seconds, 1)
             # Three times as important as promote offers.
             score = 3 * 1440 / seconds
             n += score
