@@ -60,3 +60,8 @@ class CreateOffer(FlexibleSchema):
     
     note = validators.UnicodeString(max=140, if_missing=u'')
 
+class LinkOffer(FlexibleSchema):
+    """Form fields to validate when linked an offer to a tweet."""
+    
+    id = validators.Int(not_empty=True)
+

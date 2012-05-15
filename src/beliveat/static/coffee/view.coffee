@@ -80,13 +80,55 @@ define 'beliveat.view', (exports) ->
     
     # View for a tweet that's a candidate to cover an assignment with.
     class CoverTweetWidget extends BaseWidget
-        # events: 
+        states:
+            linked: 'LINKED'
+            hidden: 'HIDDEN'
+        events: 
+            'click .buttonHide':                  'hide'
+            'click .buttonLink .dropdown-menu a': 'link'
+        
+        hide: =>
+            $.ajax
+                url: "/tweets/#{@model.id}/@@hide"
+                dataType: "json"
+                type: "POST"
+                success: => @model.set state: @states.hidden
+            false
+        
+        link: (event) =>
+            # Get the target offer from the link clicked.
+            $target = $ event.target
+            $anchor = $target.closest 'a'
+            offer_id = $anchor.attr 'data-offer'
+            offer = beliveat.model.cover_offers.get offer_id
+            # Construct the url.
+            assignment = offer.get 'assignment'
+            story = offer.get 'story'
+            stub = "/stories/#{story}/assignments/#{assignment}"
+            $.ajax
+                url: "#{stub}/cover_offers/#{offer_id}/@@link"
+                data: @model.toJSON()
+                dataType: "json"
+                type: "POST"
+                success: (data) =>
+                    @model.set coverage_record: data, state: @states.linked
+            false
+        
         render: => 
-            
-            # XXX rerender when the cover offer collection changes.
-            
-            
-            @$el.html beliveat.templates.cover_tweet @model.toJSON()
+            state = @model.get 'state'
+            console.log 'CoverTweetWidget.render', state
+            if state is @states.hidden
+                beliveat.model.own_tweets.remove @model
+            else 
+                @$el.html beliveat.templates.cover_tweet @model.toJSON()
+        
+        initialize: ->
+            # Re-render when the cover offer collection changes.
+            beliveat.model.cover_offers.bind 'add remove reset', @render
+            # Start unlinked.
+            @model.set state: @states.unlinked 
+            # Init.
+            super()
         
     
     # View for an assignment that's been selected to promote.

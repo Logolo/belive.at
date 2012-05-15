@@ -93,18 +93,24 @@ define 'beliveat.templates', (exports) ->
                 <div class="tweetButtons">
                   <button class="buttonHide btn close">Hide</button>
                   <div class="btn-group buttonLink">
-                    <a class="btn dropdown-toggle btn-primary" data-toggle="dropdown" href="#">
-                      Link to Assignment
-                      <span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                      <% beliveat.model.cover_offers.each(function (offer) { %>
-                        <li>
-                          <a href="#" data-id="<%- offer.get('title') %>">
-                            <%= offer.get('title') %></a>
-                        </li>
-                      <% }); %>
-                    </ul>
+                    <% if (typeof coverage_record !== "undefined" && coverage_record !== null) { %>
+                      <span class="success">
+                        Linked to <%= coverage_record.offer.title %>
+                      </span>
+                    <%} else { %>
+                      <a class="btn dropdown-toggle btn-primary" data-toggle="dropdown" href="#">
+                        Link to Assignment
+                        <span class="caret"></span>
+                      </a>
+                      <ul class="dropdown-menu">
+                        <% beliveat.model.cover_offers.each(function (offer) { %>
+                          <li>
+                            <a href="#" data-offer="<%- offer.get('id') %>">
+                              <%= offer.get('title') %></a>
+                          </li>
+                        <% }); %>
+                      </ul>
+                    <% } %>
                   </div>
                 </div>
               </div>

@@ -10,7 +10,7 @@ import operator
 
 from datetime import timedelta
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPForbidden
 from pyramid.view import view_config
 
 from pyramid_basemodel import Session, save as save_to_db
@@ -19,10 +19,10 @@ from pyramid_simpleform.renderers import FormRenderer
 
 from ..interfaces import IOffer, IOfferRoot, IOfferRecord
 from ..model import AssignmentRoot
-from ..model import Story, Assignment, CoverOffer, PromoteOffer
-from ..model import Hashtag, Tweet
+from ..model import Hashtag, Story, Assignment, CoverOffer, PromoteOffer
+from ..model import Tweet, CoverageRecord, PromotionRecord
 from ..model import get_one_week_ago
-from ..schema import CreateAssignment, CreateOffer
+from ..schema import CreateAssignment, CreateOffer, LinkOffer
 
 def get_offers(offer_cls, story, user, since=None, assignment_cls=None):
     """Get offers of type ``offer_cls`` that the ``user`` has made for the target
@@ -41,7 +41,7 @@ def get_offers(offer_cls, story, user, since=None, assignment_cls=None):
 
 def get_tweets(story, user_twitter_id, since=None, tweet_cls=None):
     """Get tweets that the ``user`` has made ``since`` the cutoff date that
-      match the target ``story``.
+      match the target ``story`` and haven't been either linked or hidden.
     """
     
     if since is None:
@@ -50,7 +50,7 @@ def get_tweets(story, user_twitter_id, since=None, tweet_cls=None):
         tweet_cls = Tweet
     
     query = tweet_cls.query.filter_by(user_twitter_id=user_twitter_id)
-    query = query.filter_by(coverage_records=None)
+    query = query.filter_by(hidden=False)
     query = query.filter(tweet_cls.hashtags.contains(story.hashtag))
     query = query.filter(tweet_cls.created>since)
     return [item.__json__() for item in query.all()]
@@ -186,10 +186,49 @@ def create_offer_view(request, form_cls=Form):
 
 @view_config(context=IOffer, name='close', request_method='POST', xhr=True,
         renderer='json', permission='edit') 
-def close_offer_view(request, form_cls=Form):
+def close_offer_view(request):
     """Close an offer."""
     
     request.context.closed = True
     save_to_db(request.context)
     return {'status': 'OK'}
+
+
+@view_config(context=CoverOffer, name='link', request_method='POST', xhr=True,
+        renderer='json', permission='edit') 
+def close_offer_view(request, form_cls=None, tweet_cls=None, record_cls=None,
+        save=None):
+    """Link an offer to a Tweet."""
+    
+    # Test jig.
+    if form_cls is None:
+        form_cls = Form
+    if tweet_cls is None:
+        tweet_cls = Tweet
+    if record_cls is None:
+        record_cls = CoverageRecord
+    if save is None:
+        save = save_to_db
+    
+    # Validate the user input.
+    form = form_cls(request, schema=LinkOffer)
+    if form.validate():
+        # - make sure the tweet exists
+        tweet = tweet_cls.query.get(form.data['id'])
+        if not tweet:
+            return HTTPNotFound()
+        # - make sure the tweet was posted by the authenticated user
+        if not request.user.twitter_account.twitter_id == tweet.user_twitter_id:
+            return HTTPForbidden()
+        # - make sure the tweet hasn't already been linked to this offer
+        query = record_cls.query.filter_by(offer=request.context, tweet=tweet)
+        existing = query.first()
+        if existing:
+            return HTTPBadRequest()
+        # Create and save the coverage record.
+        record = CoverageRecord(offer=request.context, tweet=tweet)
+        save(record)
+        return record.__json__()
+    request.response.status_int = 400
+    return form.errors
 
