@@ -29,10 +29,10 @@
               <li>
                 <a href="/">${_(u'Home')}</a>
               </li>
-              <li>
+              <!--li>
                 <a href="${request.route_url('stories', traverse=())}">
                   ${_(u'Stories')}</a>
-              </li>
+              </li-->
             </ul>
             <ul class="nav pull-right">
               % if request.is_authenticated and request.user:

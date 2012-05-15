@@ -3,13 +3,33 @@
 
 <div class="container-fluid">
   <div class="row-fluid">
-    <div class="hero-unit span8 offset2">
-      <h1>BeLive [everywhere].</h1>
-      <p>&nbsp</p>
-      <p>You direct the news by submitting assigments, covering stories and promoting them.<br>
-        <em>Citizen journalism by the people for the people.</em></p>
-      <p><a class="btn btn-primary btn-large" href="/stories/Syria">Get started!</a></p>
+    <img src="${request.static_url('beliveat:assets/gfx/logo.jpg')}" />
+    <div style="margin-left: 35px">
+      <br />
+      <h1>Where you direct the news!</h1>
+      <h2>
+        Follow a story, suggest ideas and amplify journalists
+        working on the ground.
+      </h2>
+      <p>
+        &nbsp;
+      </p>
+      <div class="span8">
+        <h3>
+          This is currently a <em>very</em> early pre-ALPHA version.  However,
+          you can have a <em>little</em> poke around by selecting one of the
+          #Stories below:
+        </h3>
+        <br />
+        <ul class="nav nav-pills" style="zoom: 200%;">
+          % for story in stories:
+            <li class="active" style="margin-right: 0.5em;">
+              <a href="/stories/${story.hashtag.value}">
+                #${story.hashtag.value.title()}</a>
+            </li>
+          % endfor
+        </ul>
+      </div>
     </div>
-
   </div>
 </div>
