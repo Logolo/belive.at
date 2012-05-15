@@ -305,6 +305,7 @@ define 'beliveat.view', (exports) ->
         
         
         initialize: ->
+            @hashtag = beliveat.story
             # Create assignment widget, passing through the hashtag.
             $create_assignment_el = @$ "#addAssignmentBlock"
             @create_assignment_widget = new CreateAssignmentWidget
