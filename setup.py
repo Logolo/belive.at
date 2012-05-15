@@ -50,7 +50,6 @@ setup(
         'python-postmark', 
         'redis',
         'setuptools-git', 
-        'ttp',
         'transaction', 
         'tweepy',
         'waitress', 
