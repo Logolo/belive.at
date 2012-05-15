@@ -159,7 +159,8 @@
       <div id="assignmentColumn" class="span6">
         <h3 class="columnTitle">Assignments</h3>
         <div id="addAssignmentBlock">
-          <form action="${request.resource_url(request.context, 'assignments')}/@@create"
+          <form action="${request.resource_url(request.context, 
+                  'assignments', '@@create')}"
               method="post">
             <fieldset>
               <div class="control-group">

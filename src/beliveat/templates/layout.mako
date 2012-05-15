@@ -27,10 +27,11 @@
           <div class="nav-collapse">
             <ul class="nav">
               <li>
-                <a href="/">${_(u'Index')}</a>
+                <a href="/">${_(u'Home')}</a>
               </li>
               <li>
-                <a href="/dashboard">${_(u'Dashboard')}</a>
+                <a href="${request.route_url('stories', traverse=())}">
+                  ${_(u'Stories')}</a>
               </li>
             </ul>
             <ul class="nav pull-right">
