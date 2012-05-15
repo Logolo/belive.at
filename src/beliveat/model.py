@@ -496,11 +496,16 @@ class Tweet(Base, BaseMixin):
     hashtags = relationship(Hashtag, secondary="tweets_to_hashtags",
             backref="tweets")
     
+    # Has the originating user hidden this?
+    hidden = Column(Boolean, default=False)
+    
     def __json__(self):
         """Return a dictionary representation of the ``Tweet`` instance."""
         
         data = json.loads(self.body)
         data['hashtags'] = [item.value for item in self.hashtags]
+        if self.coverage_record:
+            data['coverage_record'] = self.coverage_record.__json__()
         return data
     
 
@@ -648,6 +653,14 @@ class PromotionRecord(Base, BaseMixin):
     
     # three way code for the action that was taken
     action_code = Column(Integer)
+    
+    def __json__(self):
+        return {
+            'action': self.action_code,
+            'offer': self.offer.__json__(),
+            'tweet': self.tweet_id
+        }
+    
 
 class CoverageRecord(Base, BaseMixin):
     """"""
@@ -657,10 +670,18 @@ class CoverageRecord(Base, BaseMixin):
     __tablename__ = 'coverage_records'
     
     tweet_id = Column(Integer, ForeignKey('tweets.id'))
-    tweet = relationship(Tweet, backref='coverage_records')
+    tweet = relationship(Tweet, lazy='joined', uselist=False,
+            backref=backref('coverage_record', lazy='joined', uselist=False))
     
     offer_id = Column(Integer, ForeignKey('cover_offers.id'))
-    offer = relationship(CoverOffer, backref='coverage_records')
+    offer = relationship(CoverOffer, uselist=False, backref='coverage_records')
+    
+    def __json__(self):
+        return {
+            'offer': self.offer.__json__(),
+            'tweet': self.tweet_id
+        }
+    
 
 
 tweets_to_hashtags = Table(
