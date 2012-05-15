@@ -68,12 +68,7 @@ define 'beliveat.view', (exports) ->
                 url: url
                 dataType: "json"
                 type: "POST"
-                success: (data) =>
-                    # Remove the cover offer.
-                    @model.collection.remove @model
-                    ## If it's the last cover offer, clear the tweets.
-                    #if not @model.collection.length
-                    #    beliveat.model.own_tweets.reset()
+                success: (data) => @model.collection.remove @model
             false
         
         render: => @$el.html beliveat.templates.cover_offer @model.toJSON()
@@ -115,6 +110,10 @@ define 'beliveat.view', (exports) ->
             false
         
         render: => 
+            if not @collection.length
+                @$el.hide()
+            else
+                @$el.show()
             state = @model.get 'state'
             console.log 'CoverTweetWidget.render', state
             if state is @states.hidden
@@ -124,7 +123,8 @@ define 'beliveat.view', (exports) ->
         
         initialize: ->
             # Re-render when the cover offer collection changes.
-            beliveat.model.cover_offers.bind 'add remove reset', @render
+            @collection = beliveat.model.cover_offers
+            @collection.bind 'add remove reset', @render
             # Start unlinked.
             @model.set state: @states.unlinked 
             # Init.
