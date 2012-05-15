@@ -1,6 +1,9 @@
 # Backbone view classes.
 define 'beliveat.view', (exports) ->
     
+    # Unpack namespace.
+    dispatcher = beliveat.events.dispatcher
+    
     ### Widgets.
     ###
     
@@ -100,9 +103,13 @@ define 'beliveat.view', (exports) ->
             assignment = offer.get 'assignment'
             story = offer.get 'story'
             stub = "/stories/#{story}/assignments/#{assignment}"
+            url = "#{stub}/cover_offers/#{offer_id}/@@link"
+            # Construct the POST data.
+            data =
+                tweet_id: @model.get 'id_str'
             $.ajax
-                url: "#{stub}/cover_offers/#{offer_id}/@@link"
-                data: @model.toJSON()
+                url: url
+                data: data
                 dataType: "json"
                 type: "POST"
                 success: (data) =>
@@ -155,11 +162,56 @@ define 'beliveat.view', (exports) ->
         render: => 
             @$el.html beliveat.templates.promote_offer @model.toJSON()
         
+        initialize: =>
+            # Init.
+            super()
+            # Setup a collection of tweets to promote.
+            @collection = new beliveat.model.TweetCollection @model.get 'tweets'
+            $tweets_wrapper = @$ '.tweetPromoteWrapper'
+            @tweets_listing = new PromoteTweetsListing
+                collection: @collection
+                el: $tweets_wrapper
+            # Add tweets broadcast to this promote offer.
+            key = "tweet_to_promote_offer:#{@model.id}"
+            dispatcher.on key, (data) => @collection.add data
+        
     
     # View for a tweet that's a candidate to promote.
     class PromoteTweetWidget extends BaseWidget
-        # events: 
-        render: => @$el.html beliveat.templates.promote_tweet @model.toJSON()
+        events: 
+            'click .buttonHide'     : 'hide'
+            'click .buttonRetweet'  : 'retweet'
+            'click .buttonFlag'     : 'flag'
+        
+        flag: => @fulfill 1
+        hide: => @fulfill 3
+        retweet: => @fulfill 5
+        fulfill: (code) =>
+            # Get the target offer.
+            $target = @$el.closest '.promote-offer'
+            offer_id = $target.attr 'data-id'
+            offer = beliveat.model.promote_offers.get offer_id
+            # Build the url
+            assignment = offer.get 'assignment'
+            story = offer.get 'story'
+            stub = "/stories/#{story}/assignments/#{assignment}"
+            url = "#{stub}/promote_offers/#{offer_id}/@@fulfill"
+            # Build the POST data.
+            data = 
+                tweet_id: @model.get 'id_str'
+                action_code: code
+            # Ping the server.
+            $.ajax
+                url: url
+                data: data
+                dataType: "json"
+                type: "POST"
+                success: (data) => @model.set data
+            false
+        
+        render: =>
+            @$el.html beliveat.templates.promote_tweet @model.toJSON()
+        
     
     # View for the create assignment UI.
     class CreateAssignmentWidget extends Backbone.View
@@ -278,6 +330,13 @@ define 'beliveat.view', (exports) ->
             @$el.prepend widget.$el
         
     
+    # View for the listing of cover offers.
+    class PromoteTweetsListing extends BaseListing
+        add: (instance) =>
+            widget = new PromoteTweetWidget model: instance
+            @$el.prepend widget.$el
+        
+    
     # View for the listing of promote offers.
     class PromoteOffersListing extends BaseListing
         add: (instance) =>
@@ -297,12 +356,11 @@ define 'beliveat.view', (exports) ->
         handle_own_tweet: (data) -> beliveat.model.own_tweets.add(data)
         
         # Handle the arrival of a tweet that's been verified by its author as
-        # coverage of an assignment this use has offered to promote.
+        # coverage of an assignment this user has offered to promote by
+        # re-broadcasting to the relevant promote offer widget to pick up.
         handle_tweet_to_promote: (data) ->
             console.log 'StoryView.handle_tweet_to_promote'
-            console.log data
-            # XXX broadcast an event using the assignment id.
-        
+            dispatcher.trigger "tweet_to_promote_offer:#{data.offer}", data.tweet
         
         initialize: ->
             @hashtag = beliveat.story
@@ -335,8 +393,8 @@ define 'beliveat.view', (exports) ->
                 collection: beliveat.model.promote_offers
                 el: $promote_offers_el
             # Bind to socket notifications.
-            beliveat.events.dispatcher.on "own_tweet:#{@hashtag}", @handle_own_tweet
-            beliveat.events.dispatcher.on "tweet_to_promote:#{@hashtag}", @handle_tweet_to_promote
+            dispatcher.on "own_tweet:#{@hashtag}", @handle_own_tweet
+            dispatcher.on "tweet_to_promote:#{@hashtag}", @handle_tweet_to_promote
         
     
     exports.StoryView = StoryView
