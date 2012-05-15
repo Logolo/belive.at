@@ -6,16 +6,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 import json
-import ttp
+
+from pyramid.threadlocal import get_current_registry
 
 from pyramid_basemodel import Session, save as save_to_db
-from pyramid_simpleauth.model import User
 from pyramid_twitterauth.model import TwitterAccount
 
-from zope.interface import implementer, Attribute, Interface
-
-from .hooks import get_redis_client
-from .model import CoverOffer, Hashtag, Tweet, TweetRecord
+from .events import TweetAdded
+from .model import Hashtag, Tweet, TweetRecord
+from .notify import handle_tweet_added
 from .schema import Hashtag as ValidHashtag
 
 def handle_retweet(data, model_cls=TweetRecord, save=save_to_db):
@@ -63,7 +62,7 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
     
     # Store it in the db.
     tweet = tweet_cls(id=data['id'])
-    tweet.body = text
+    tweet.body = json.dumps(data)
     tweet.user_twitter_id = data['user']['id']
     tag_entities = data.get('entities', {}).get('hashtags', [])
     for item in tag_entities:
@@ -71,23 +70,12 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
         tweet.hashtags.append(hashtag_cls.get_or_create(value))
     save(tweet)
     
-    # Notify all the users who might want to use this Tweet to cover an assignment.
-    hashtag_values = [item.value for item in tweet.hashtags]
-    query = CoverOffer.query.filter(Hashtag.value.in_(hashtag_values))
-    query = query.filter(TwitterAccount.twitter_id==tweet.user_twitter_id)
-    query = query.filter(CoverOffer.closed==False)
+    # Notify.
+    handle_tweet_added(TweetAdded(None, tweet))
     
-    redis_client = get_redis_client()
-    for offer in query.all():
-        hashtag = offer.assignment.story.hashtag.value
-        canonical_id = offer.user.canonical_id
-        channel = 'own_tweet:{0}:{1}'.format(hashtag, canonical_id)
-        redis_client.publish(channel, tweet.body.encode('utf-8'))
-    
-    # XXX debug.
     from_ = data['user']['screen_name']
     text = data['text']
-    logger.info(u'@{0}: {1}'.format(from_, text))
+    logger.warn(u'@{0}: {1}'.format(from_, text))
 
 def handle_status(data, text):
     """Handle a Twitter status."""
