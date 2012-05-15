@@ -202,8 +202,8 @@
       </div>
       <div id="coverageColumn" class="span6">
         <h3 class="columnTitle">Coverage</h3>
+        <h4>Reporting</h4>
         <div class="pledgedCoverBlock">
-          <h4>Reporting</h4>
           <div class="pledgedCoverWrapper">
             <%doc>
               ${self.pledgedCover()}
@@ -217,8 +217,8 @@
             </%doc>
           </div>
         </div>
+        <h4>Amplifying</h4>
         <div class="pledgedPromoteBlock">
-          <h4>Amplifying</h4>
           <div class="pledgedPromoteWrapper">
             <%doc>
               ${pledgedPromote()}
