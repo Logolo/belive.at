@@ -672,7 +672,7 @@ class PromotionRecord(Base, BaseMixin):
     
     __tablename__ = 'promotion_records'
     
-    tweet_id = Column(Integer, ForeignKey('tweets.id'))
+    tweet_id = Column(BigInteger, ForeignKey('tweets.id'))
     tweet = relationship(Tweet, backref='promotion_records')
     
     offer_id = Column(Integer, ForeignKey('promote_offers.id'))
@@ -696,7 +696,7 @@ class CoverageRecord(Base, BaseMixin):
     
     __tablename__ = 'coverage_records'
     
-    tweet_id = Column(Integer, ForeignKey('tweets.id'))
+    tweet_id = Column(BigInteger, ForeignKey('tweets.id'))
     tweet = relationship(Tweet, lazy='joined', uselist=False,
             backref=backref('coverage_record', lazy='joined', uselist=False))
     
