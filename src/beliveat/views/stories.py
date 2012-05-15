@@ -83,7 +83,7 @@ def get_popular_assignments(story, redis_client, since=None, assignment_cls=None
     # Cache in redis for five minutes
     KEY = 'beliveat:popular_assignments:{0}'.format(story.hashtag.value)
     results_str = redis_client.get(KEY)
-    if results_str:
+    if False: #results_str:
         results = json.loads(results_str)
     else: # Get the latest 2500 assignments and rank them.  Note that we strip out
         # the assignments from the current user client side, so this function can
