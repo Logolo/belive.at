@@ -19,7 +19,7 @@ define 'beliveat.templates', (exports) ->
                           <%= num_coverage_offers %>
                         </div>
                         <div class="pledgesLabel">
-                          Offers
+                          Reporters
                         </div>
                     <% if (!covering) { %>
                       </a>
@@ -42,7 +42,7 @@ define 'beliveat.templates', (exports) ->
                           <%= num_promotion_offers %>
                         </div>
                         <div class="pledgesLabel">
-                          Supporters
+                          Amplifiers
                         </div>
                     <% if (!promoting) { %>                      
                       </a>
@@ -53,7 +53,7 @@ define 'beliveat.templates', (exports) ->
                     <p><%~ description %></p>
                     <div class="assignmentAuthor">
                       <img src="<%- profile_image_url %>" />
-                      Submitted by <%~ '@' + author %>.
+                      Suggested by <%~ '@' + author %>.
                     </div>
                   </div>
                   <div class="clear"></div>
@@ -121,7 +121,7 @@ define 'beliveat.templates', (exports) ->
                 </div>
               </div>
               <div class="clear"></div>
-              <div class="pledgedPromoteStatus">You pledged to promote this.</div>
+              <div class="pledgedPromoteStatus">You pledged to amplify this.</div>
             </li>            
         """
     
