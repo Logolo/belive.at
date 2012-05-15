@@ -303,7 +303,6 @@ class Story(Base, BaseMixin, PublicIdMixin):
         }
     
 
-
 class Assignment(Base, BaseMixin, PublicIdMixin):
     """Encapsulate a assignment."""
     
