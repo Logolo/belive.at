@@ -11,7 +11,7 @@ import random
 
 from formencode import validators, Invalid
 
-from sqlalchemy import event
+from sqlalchemy import event, not_
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Unicode, UnicodeText
 from sqlalchemy.orm import backref, relationship
@@ -564,9 +564,36 @@ class PromoteOffer(Base, BaseMixin, PublicIdMixin):
     # Has the originating user closed this?
     closed = Column(Boolean, default=False)
     
+    def get_pending_tweets(self, tweet_cls=None, record_cls=None, offer_cls=None):
+        """Return the tweets that have been flagged as covering this offer's
+          assignment and that haven't been 'deal with' already.
+        """
+        
+        # Test jig.
+        if tweet_cls is None:
+            tweet_cls = Tweet
+        if record_cls is None:
+            record_cls = CoverageRecord
+        if offer_cls is None:
+            offer_cls = CoverOffer
+        
+        # Shortcut if closed.
+        if self.closed:
+            return []
+        
+        # Get the tweets that are related to cover offers made on this promote
+        # offer's assignment.
+        query = tweet_cls.query.join(tweet_cls.coverage_record, record_cls.offer)
+        query = query.filter(offer_cls.assignment==self.assignment)
+        # That haven't already been dealt with.
+        dealt_with = [item.tweet_id for item in self.promotion_records]
+        query = query.filter(not_(tweet_cls.id.in_(dealt_with)))
+        return query.all()
+    
     def __json__(self):
         """Return a dictionary representation of the ``PromoteOffer`` instance."""
         
+        pending_tweets = self.get_pending_tweets()
         return {
             'id': self.public_id,
             'offer_type': 'promote',
@@ -575,7 +602,8 @@ class PromoteOffer(Base, BaseMixin, PublicIdMixin):
             'story': self.assignment.story.hashtag.value,
             'title': self.assignment.title,
             'user': self.user.username,
-            'closed': self.closed
+            'closed': self.closed,
+            'tweets': [item.__json__() for item in pending_tweets]
         }
     
 
