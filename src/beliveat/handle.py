@@ -65,11 +65,11 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
     tweet = tweet_cls(id=data['id'])
     tweet.body = text
     tweet.user_twitter_id = data['user']['id']
-    for item in ttp.Parser().parse(data['text']).tags:
-        value = ValidHashtag.to_python(item)
-        hashtag = hashtag_cls.get_or_create(value)
-        tweet.hashtags.append(hashtag)
-        save(tweet)
+    tag_entities = data.get('entities', {}).get('hashtags', [])
+    for item in tag_entities:
+        value = ValidHashtag.to_python(item['text'])
+        tweet.hashtags.append(hashtag_cls.get_or_create(value))
+    save(tweet)
     
     # Notify all the users who might want to use this Tweet to cover an assignment.
     hashtag_values = [item.value for item in tweet.hashtags]
