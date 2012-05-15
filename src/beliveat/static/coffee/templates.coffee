@@ -71,7 +71,7 @@ define 'beliveat.templates', (exports) ->
     
 
     cover_offer = mobone.string.template """
-            <li class="pledgedCover" data-id="<%- id %>">
+            <div class="pledgedCover" data-id="<%- id %>">
               <div class="pledgedCoverBody">
                 <div class="pledgedCoverClose">
                    <button class="btn-mini buttonCoverClose">x</button>
@@ -83,11 +83,11 @@ define 'beliveat.templates', (exports) ->
               </div>
               <div class="clear"></div>
               <div class="pledgedCoverStatus">You pledged to cover this.</div>
-            </li>
+            </div>
         """
     
     cover_tweet = mobone.string.template """         
-            <li class="tweetCover">
+            <div class="tweetCover">
               <div class="tweetText">
                 <p><%= text %></p>
                 <div class="tweetButtons">
@@ -115,35 +115,46 @@ define 'beliveat.templates', (exports) ->
                 </div>
               </div>
               <div class="clear"></div>
-            </li>
+            </div>
         """
 
     cover_tweet_opened = mobone.string.template """
             
-            <li>Cover Tweet</li>
+            <div>Cover Tweet Opened</div>
             
             
         """
 
     promote_offer = mobone.string.template """
-            <li class="pledgedPromote">
-              <div class="pledgedPromoteBody">
-                <div class="pledgedPromoteIcon"><img src="<%- assetgen.static_path('/static/gfx/promote-icon.png') %>" /></div>
-                <div class="pledgedPromoteTitle"><%= title %></div>
-                <div class="pledgedPromoteClose">
-                   <button class="btn-mini buttonPromoteClose">x</button>
+            <div class="pledgedPromoteWrapper promote-offer" data-id="<%- id %>">
+              <div class="pledgedPromote">
+                <div class="pledgedPromoteBody">
+                  <div class="pledgedPromoteIcon"><img src="<%- assetgen.static_path('/static/gfx/promote-icon.png') %>" /></div>
+                  <div class="pledgedPromoteTitle"><%= title %></div>
+                  <div class="pledgedPromoteClose">
+                     <button class="btn-mini buttonPromoteClose">x</button>
+                  </div>
                 </div>
+                <div class="clear"></div>
+                <div class="pledgedPromoteStatus">You pledged to amplify this.</div>
               </div>
-              <div class="clear"></div>
-              <div class="pledgedPromoteStatus">You pledged to amplify this.</div>
-            </li>            
+              <div class="tweetPromoteWrapper">
+              </div>
+            </div>
         """
     
     promote_tweet = mobone.string.template """
-            
-            <li>Promote Tweet</li>
-            
-            
+            <div class="tweetPromote" data-id="<%- id %>">
+              <p><%= text %></p>
+              <div class="tweetButtons">
+                <button class="buttonHide btn close">Hide</button>
+                <button class="buttonRetweet btn-primary">Retweet</button>        
+                <button class="buttonFlag">
+                  <img src="/static/gfx/flag.png" />Flag as Inappropriate
+                </button>
+              </div>
+              <div class="clear"></div>
+            </div>
         """
 
     promote_tweet_opened = mobone.string.template """
