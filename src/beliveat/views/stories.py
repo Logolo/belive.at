@@ -196,7 +196,7 @@ def close_offer_view(request):
 
 @view_config(context=CoverOffer, name='link', request_method='POST', xhr=True,
         renderer='json', permission='edit') 
-def close_offer_view(request, form_cls=None, tweet_cls=None, record_cls=None,
+def link_offer_view(request, form_cls=None, tweet_cls=None, record_cls=None,
         save=None):
     """Link an offer to a Tweet."""
     
