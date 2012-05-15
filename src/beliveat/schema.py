@@ -80,8 +80,14 @@ class CreateOffer(FlexibleSchema):
     
     note = validators.UnicodeString(max=140, if_missing=u'')
 
-class LinkOffer(FlexibleSchema):
+class CreateCoverageRecord(FlexibleSchema):
     """Form fields to validate when linked an offer to a tweet."""
     
-    id = validators.Int(not_empty=True)
+    tweet_id = validators.Int(not_empty=True)
+
+class CreatePromotionRecord(FlexibleSchema):
+    """Form fields to validate when fulfilling an offer to amplify a tweet."""
+    
+    tweet_id = validators.Int(not_empty=True)
+    action_code = ActionCode(not_empty=True)
 

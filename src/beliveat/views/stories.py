@@ -17,12 +17,16 @@ from pyramid_basemodel import Session, save as save_to_db
 from pyramid_simpleform import Form
 from pyramid_simpleform.renderers import FormRenderer
 
+from ..events import CoverageRecordAdded, PromotionRecordAdded
 from ..interfaces import IOffer, IOfferRoot, IOfferRecord
+
 from ..model import AssignmentRoot
 from ..model import Hashtag, Story, Assignment, CoverOffer, PromoteOffer
 from ..model import Tweet, CoverageRecord, PromotionRecord
 from ..model import get_one_week_ago
-from ..schema import CreateAssignment, CreateOffer, LinkOffer
+
+from ..schema import CreateAssignment, CreateOffer
+from ..schema import CreateCoverageRecord, CreatePromotionRecord
 
 def get_offers(offer_cls, story, user, since=None, assignment_cls=None):
     """Get offers of type ``offer_cls`` that the ``user`` has made for the target
@@ -196,8 +200,8 @@ def close_offer_view(request):
 
 @view_config(context=CoverOffer, name='link', request_method='POST', xhr=True,
         renderer='json', permission='edit') 
-def link_offer_view(request, form_cls=None, tweet_cls=None, record_cls=None,
-        save=None):
+def link_cover_offer_view(request, form_cls=None, tweet_cls=None, record_cls=None,
+        event_cls=None, save=None):
     """Link an offer to a Tweet."""
     
     # Test jig.
@@ -207,14 +211,19 @@ def link_offer_view(request, form_cls=None, tweet_cls=None, record_cls=None,
         tweet_cls = Tweet
     if record_cls is None:
         record_cls = CoverageRecord
+    if event_cls is None:
+        event_cls = CoverageRecordAdded
     if save is None:
         save = save_to_db
     
     # Validate the user input.
-    form = form_cls(request, schema=LinkOffer)
+    form = form_cls(request, schema=CreateCoverageRecord)
     if form.validate():
+        
+        logger.warn(form.data)
+        
         # - make sure the tweet exists
-        tweet = tweet_cls.query.get(form.data['id'])
+        tweet = tweet_cls.query.get(form.data['tweet_id'])
         if not tweet:
             return HTTPNotFound()
         # - make sure the tweet was posted by the authenticated user
@@ -226,8 +235,56 @@ def link_offer_view(request, form_cls=None, tweet_cls=None, record_cls=None,
         if existing:
             return HTTPBadRequest()
         # Create and save the coverage record.
-        record = CoverageRecord(offer=request.context, tweet=tweet)
+        record = record_cls(offer=request.context, tweet=tweet)
         save(record)
+        # Notify.
+        event = event_cls(request, record)
+        request.registry.notify(event)
+        # Return JSON.
+        return record.__json__()
+    request.response.status_int = 400
+    return form.errors
+
+@view_config(context=PromoteOffer, name='fulfill', request_method='POST', xhr=True,
+        renderer='json', permission='edit')
+def fulfill_promote_offer_view(request, form_cls=None, tweet_cls=None, record_cls=None,
+        event_cls=None, save=None):
+    """Link an offer to a Tweet."""
+    
+    # Test jig.
+    if form_cls is None:
+        form_cls = Form
+    if tweet_cls is None:
+        tweet_cls = Tweet
+    if record_cls is None:
+        record_cls = PromotionRecord
+    if event_cls is None:
+        event_cls = PromotionRecordAdded
+    if save is None:
+        save = save_to_db
+    
+    # Validate the user input.
+    form = form_cls(request, schema=CreatePromotionRecord)
+    if form.validate():
+        # - make sure the tweet exists
+        tweet = tweet_cls.query.get(form.data['tweet_id'])
+        if not tweet:
+            return HTTPNotFound()
+        # - make sure the tweet's coverage offer has the same assignment as this offer.
+        if tweet.coverage_record.offer.assignment_id != request.context.assignment_id:
+            return HTTPBadRequest()
+        # - make sure the user isn't trying to do this twice.
+        query = record_cls.query.filter_by(offer=request.context, tweet=tweet)
+        if query.first():
+            return HTTPBadRequest()
+        # Create and save the promotion record.
+        record = record_cls(offer=request.context, tweet=tweet)
+        record.action_code = form.data['action_code']
+        save(record)
+        # Notify.
+        event = event_cls(request, record)
+        request.registry.notify(event)
+        # Return JSON.
         return record.__json__()
     request.response.status_int = 400
     return form.errors
