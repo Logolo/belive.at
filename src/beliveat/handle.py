@@ -77,11 +77,9 @@ def handle_tweet(data, text, tweet_cls=Tweet, hashtag_cls=Hashtag, save=save_to_
     query = query.filter(TwitterAccount.twitter_id==tweet.user_twitter_id)
     query = query.filter(CoverOffer.closed==False)
     
-    logger.warn('XXX will we delete ``CoverOffer``s or retire them?')
-    
     redis_client = get_redis_client()
     for offer in query.all():
-        hashtag = offer.assignment.hashtag.value
+        hashtag = offer.assignment.story.hashtag.value
         canonical_id = offer.user.canonical_id
         channel = 'own_tweet:{0}:{1}'.format(hashtag, canonical_id)
         redis_client.publish(channel, tweet.body.encode('utf-8'))
