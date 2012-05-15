@@ -37,7 +37,6 @@ from pyramid_twitterauth.model import TwitterAccount
 from .hooks import get_redis_client
 from .model import Hashtag
 from .queue import QueueProcessor
-from .query import get_track_keywords
 
 INPUT_CHANNEL = 'beliveat.stream:instructions'
 OUTPUT_CHANNEL = 'beliveat.queue:input'
