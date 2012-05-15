@@ -91,3 +91,72 @@ def handle_tweet_added(event, join=None, get_redis=None, offer_cls=None,
         join(redis_client.publish, channel, message)
     
 
+
+@subscriber(CoverageRecordAdded)
+def handle_coverage_record_added(event, join=None, get_redis=None, offer_cls=None):
+    """Notify all the users who've offered to promote the relevant assignment."""
+    
+    logger.warn('handle_coverage_record_added')
+    
+    # Test jig.
+    if join is None:
+        join = join_to_transaction
+    if get_redis is None:
+        get_redis = get_redis_client
+    if offer_cls is None:
+        offer_cls = PromoteOffer
+    
+    # Unpack the event.
+    assignment = event.record.offer.assignment
+    tweet = event.record.tweet
+    tweet_data = json.loads(tweet.body)
+    
+    # Get all the potentially relevant promote offers.
+    query = offer_cls.query.filter_by(assignment=assignment, closed=False)
+    
+    # Add an after commit hook to publish to each of them.
+    redis_client = get_redis()
+    for offer in query.all():
+        # Build the message
+        # Build the channel.
+        hashtag = offer.assignment.story.hashtag.value
+        canonical_id = offer.user.canonical_id
+        channel = 'tweet_to_promote:{0}:{1}'.format(hashtag, canonical_id)
+        # Publish the message to the channel, sending through the target promote
+        # offer's id as well as the tweet data.
+        message_data = {
+            'tweet': tweet_data,
+            'offer': offer.public_id
+        }
+        join(redis_client.publish, channel, json.dumps(message_data))
+
+
+@subscriber(PromotionRecordAdded)
+def post_retweet(event, join=None):
+    """If the promotion record's action_code matches, then post the RT."""
+    
+    logger.warn('Posting RT...')
+    
+    # Test jig.
+    if join is None:
+        join = join_to_transaction
+    
+    # Unpack the event.
+    request = event.request
+    record = event.record
+    
+    # Ignore any records that weren't to amplify.
+    if record.action_code != request.action_codes['amplify']:
+        return
+    
+    # Add an after commit hook to post the RT.
+    join(request.twitter.client.retweet, record.tweet.id)
+    
+
+
+@subscriber(PromotionRecordAdded)
+def handle_promotion_record_added(event, join=None, get_redis=None, offer_cls=None):
+    """"""
+    
+    logger.warn('XXX notify users when a promotion record happens')
+
