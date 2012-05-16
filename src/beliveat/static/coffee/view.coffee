@@ -87,7 +87,7 @@ define 'beliveat.view', (exports) ->
         
         hide: =>
             $.ajax
-                url: "/tweets/#{@model.id}/@@hide"
+                url: "/tweets/#{@model.get('id_str')}/@@hide"
                 dataType: "json"
                 type: "POST"
                 success: => @model.set state: @states.hidden
