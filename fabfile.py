@@ -171,9 +171,10 @@ def deploy(branch='master', force_upgrade=False):
     
     with cd('beliveat/instances/{0}'.format(env.instance)):
         
-        # Forcefully terminate the pserve process.  XXX this should be graceful.
+        # Forcefully terminate the gunicorn and queue processes.
         with settings(warn_only=True):
-            run('kill -TERM `cat pyramid.pid`')
+            run('kill -TERM `cat serve.pid`')
+            run('kill -TERM `cat queue.pid`')
         
         # Get the new source code.
         run('git pull origin {0}'.format(branch))
@@ -183,9 +184,17 @@ def deploy(branch='master', force_upgrade=False):
         upgrade_flag = '-U' if force_upgrade else ''
         run('../../env/bin/python2.6 setup.py develop {0}'.format(upgrade_flag))
         
-        # Restart the pserve process.
-        run('../../env/bin/pserve etc/{}.ini --daemon'.format(env.instance))
-    
+        # Build the static files.
+        run('../../env/bin/assetgen etc/assetgen.yaml --force')
+        
+        # Forcefully terminate the stream process.
+        with settings(warn_only=True):
+            run('kill -TERM `cat stream.pid`')
+        
+        # Restart the processes process.
+        run('nohup ../../env/bin/beliveat_stream_consumer etc/{0}.ini > stream.out 2> stream.err < /dev/null &'.format(env.instance))
+        run('nohup ../../env/bin/beliveat_queue_processor etc/{0}.ini > queue.out 2> queue.err < /dev/null &'.format(env.instance))
+        run('../../env/bin/gunicorn_paster -c etc/gunicorn.py etc/{}.ini --daemon'.format(env.instance))
 
 
 # Admin helpers.

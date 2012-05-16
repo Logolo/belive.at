@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 import argparse
 import ConfigParser
 import json
+import os
 import sys
 import threading
 import time
@@ -115,6 +116,11 @@ def parse_args(parser_cls=argparse.ArgumentParser):
 
 def main(args=None):
     """Process the ``INPUT_CHANNEL`` redis queue."""
+    
+    # Write a pid file.
+    f = open('queue.pid', 'w')
+    f.write(str(os.getpid()))
+    f.close()
     
     # Parse the command line args.
     if args is None:

@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 import argparse
 import ConfigParser
+import os
 import threading
 import time
 import tweepy
@@ -278,6 +279,11 @@ def parse_args(parser_cls=argparse.ArgumentParser):
 
 def main(args=None):
     """Consume the Twitter Streaming API."""
+    
+    # Write a pid file.
+    f = open('stream.pid', 'w')
+    f.write(str(os.getpid()))
+    f.close()
     
     # Parse the command line args.
     if args is None:
