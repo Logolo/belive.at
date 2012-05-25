@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 from socketio import socketio_manage
 from socketio.namespace import BaseNamespace as SocketIONamespace
 
+from pyramid_basemodel import Session
+
 from pyramid.response import Response
 from pyramid.view import view_config
 
@@ -27,6 +29,10 @@ class LiveContext(SocketIONamespace):
         subscriber = redis.pubsub()
         subscriber.psubscribe([pattern])
         logger.debug(u'Subscribing {0} to redis notifications'.format(user.username))
+        
+        # Close the db session.
+        Session.remove()
+        
         for notification in subscriber.listen():
             parts = notification['channel'].split(':')
             name = parts[0]
