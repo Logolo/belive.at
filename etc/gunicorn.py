@@ -3,9 +3,8 @@ import os
 import signal
 import sys
 
-import gevent_psycopg2
-
 def post_fork(server, worker):
+    import gevent_psycopg2
     gevent_psycopg2.monkey_patch()
 
 
