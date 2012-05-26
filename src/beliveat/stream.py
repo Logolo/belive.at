@@ -194,6 +194,9 @@ class Manager(object):
         self.follow_ids = get_twitter_ids()
         self.track_keywords = get_keywords()
         
+        # Close the db connection
+        Session.remove()
+        
         logger.warn('- new:')
         logger.warn(self.follow_ids)
         logger.warn(self.track_keywords)
@@ -299,6 +302,8 @@ def main(args=None):
     # Patch sockets and threading.
     from gevent import monkey
     monkey.patch_all()
+    import gevent_psycopg2
+    gevent_psycopg2.monkey_patch()
     
     # Bind the model classes.
     engine = create_engine(config.get('app:beliveat', 'sqlalchemy.url'))

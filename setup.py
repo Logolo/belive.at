@@ -29,6 +29,7 @@ setup(
         'fabric',
         'formencode', 
         'gevent',
+        'gevent_socketio',
         'gunicorn',
         'mock',
         'nose',

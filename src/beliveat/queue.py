@@ -17,7 +17,7 @@ import time
 import transaction
 
 from sqlalchemy import create_engine
-from pyramid_basemodel import bind_engine
+from pyramid_basemodel import Session, bind_engine
 
 from .handle import handle_deletion, handle_status
 from .hooks import get_redis_client
@@ -104,6 +104,9 @@ def handle_data(data_str):
         if data.has_key('delete'):
             return handle_deletion(data)
         # XXX more events, e.g.: handle verification.
+    
+    # Close the db connection.
+    Session.remove()
 
 
 def parse_args(parser_cls=argparse.ArgumentParser):
