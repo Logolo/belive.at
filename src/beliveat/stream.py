@@ -36,7 +36,7 @@ from pyramid_basemodel import Session, bind_engine
 from pyramid_twitterauth.model import TwitterAccount
 
 from .hooks import get_redis_client
-from .model import Hashtag
+from .model import Session, Hashtag
 from .queue import QueueProcessor
 
 INPUT_CHANNEL = 'beliveat.stream:instructions'
@@ -314,6 +314,10 @@ def main(args=None):
     client = get_redis_client()
     handler = oauth_handler_factory(config)
     manager = Manager(client, handler, args.input_channel, args.output_channel)
+    
+    # Close the db connection
+    Session.remove()
+    
     try:
         manager.start()
     except KeyboardInterrupt:

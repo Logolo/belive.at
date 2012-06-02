@@ -149,6 +149,10 @@ def main(args=None):
     # Setup the redis queue processor.
     client = get_redis_client()
     processor = QueueProcessor(client, [args.input_channel], handle_data)
+    
+    # Close the db connection
+    Session.remove()
+    
     try:
         processor.start()
     except KeyboardInterrupt:

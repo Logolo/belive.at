@@ -8,32 +8,26 @@ logger = logging.getLogger(__name__)
 from socketio import socketio_manage
 from socketio.namespace import BaseNamespace as SocketIONamespace
 
-from pyramid_basemodel import Session
-
 from pyramid.response import Response
 from pyramid.view import view_config
 
-from ..hooks import get_redis_client
+from ..model import Session
 
 class LiveContext(SocketIONamespace):
-    """"""
+    """Note that ``self.request`` is actually a redis pubsub subscriber."""
+    
+    @property
+    def redis_pubsub_subscriber(self):
+        """This property makes it explicit that ``self.request`` is actually a
+          redis pubsub subscriber.
+        """
+        
+        return self.request
     
     def on_join(self, msg):
-        """"""
+        """Emit notifications to the user."""
         
-        # Subscribe to redis notifications, listening for any events matching
-        # ``*.user.canonical_id``.
-        user = self.request.user
-        pattern = '*:{0}'.format(user.canonical_id)
-        redis = get_redis_client()
-        subscriber = redis.pubsub()
-        subscriber.psubscribe([pattern])
-        logger.debug(u'Subscribing {0} to redis notifications'.format(user.username))
-        
-        # Close the db session.
-        Session.remove()
-        
-        for notification in subscriber.listen():
+        for notification in self.redis_pubsub_subscriber.listen():
             parts = notification['channel'].split(':')
             name = parts[0]
             hashtag = parts[1]
@@ -42,7 +36,34 @@ class LiveContext(SocketIONamespace):
 
 
 @view_config(route_name='live', renderer="json")
-def live_view(request):
-    socketio_manage(request.environ, {'/live': LiveContext}, request)
+def live_view(request, session=None, manage_socket=None):
+    """Query the database and *close the db connection* before going into the
+      death by hung db connection land of web sockets.
+    """
+    
+    # Test jig.
+    if session is None:
+        session = Session
+    if manage_socket is None:
+        manage_socket = socketio_manage
+    
+    # Get the pattern for any events matching ``*.user.canonical_id``.
+    user = request.user
+    pattern = '*:{0}'.format(user.canonical_id)
+    
+    # Subscribe to them.
+    subscriber = request.redis.pubsub()
+    subscriber.psubscribe([pattern])
+    
+    # Print debug message.
+    logger.debug(u'Subscribing {0} to notifications'.format(user.username))
+    
+    # IMPORTANT! Close the db connection.
+    session.remove()
+    
+    # Hand over to the socket.io machinery.  This blocks the thread "forever".
+    manage_socket(request.environ, {'/live': LiveContext}, subscriber)
+    
+    # If the socket loop exits, return.
     return {}
 
